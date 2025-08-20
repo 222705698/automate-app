@@ -1,20 +1,27 @@
-// src/components/RegistrationStep1.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import ApiService from "../../services/ApiService";
 
 export default function RegistrationStep1({ onNext }) {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     idNumber: "",
     email: "",
     contactNumber: "",
-    address: "",
+    street: "",
+    city: "",
+    province: "",
+    country: "",
+    dobYear: "",
     dobMonth: "",
     dobDay: "",
-    dobYear: "",
     password: "",
     confirmPassword: "",
+    role: "APPLICANT",
   });
 
   const [error, setError] = useState("");
@@ -28,9 +35,7 @@ export default function RegistrationStep1({ onNext }) {
     const birthDate = new Date(year, month - 1, day);
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
     return age;
   };
 
@@ -61,7 +66,7 @@ export default function RegistrationStep1({ onNext }) {
       formData.dobDay &&
       calculateAge(formData.dobYear, formData.dobMonth, formData.dobDay) < 18
     ) {
-      setError("You do not qualify for the system (under 18).");
+      setError("You must be at least 18 years old.");
       return false;
     }
 
@@ -69,9 +74,44 @@ export default function RegistrationStep1({ onNext }) {
     return true;
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      onNext(formData);
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    // Format birthDate as yyyy-MM-dd
+    const birthDate = `${formData.dobYear}-${String(formData.dobMonth).padStart(
+      2,
+      "0"
+    )}-${String(formData.dobDay).padStart(2, "0")}`;
+
+    // Payload matching backend entity
+   const payload = {
+  firstName: formData.firstName,  // lowercase 'f'
+  lastName: formData.lastName,    // lowercase 'l'
+  idNumber: formData.idNumber,
+  birthDate: birthDate,           // lowercase 'b'
+  password: formData.password,
+  role: formData.role,
+  contact: {                      // lowercase 'c'
+    email: formData.email,
+    cellphone: formData.contactNumber,
+  },
+  address: {                      // lowercase 'a'
+    street: formData.street,
+    city: formData.city,
+    province: formData.province,
+    country: formData.country,
+  },
+};
+
+    try {
+      const result = await ApiService.registerUser(payload);
+      console.log("Registered successfully:", result);
+      alert("Registration successful!");
+      onNext(payload); // optional: save in state
+      navigate("/applicant");
+    } catch (err) {
+      console.error("Registration failed:", err);
+      setError("Registration failed. Please try again.");
     }
   };
 
@@ -82,13 +122,9 @@ export default function RegistrationStep1({ onNext }) {
           AUTOMATED APP SYSTEM
         </h3>
 
-        {error && (
-          <div className="alert alert-danger" role="alert">
-            {error}
-          </div>
-        )}
+        {error && <div className="alert alert-danger">{error}</div>}
 
-        {/* First & Last Name */}
+        {/* Name */}
         <div className="row mb-3">
           <div className="col">
             <label className="form-label">First Name</label>
@@ -112,7 +148,7 @@ export default function RegistrationStep1({ onNext }) {
           </div>
         </div>
 
-        {/* ID Number */}
+        {/* ID */}
         <div className="mb-3">
           <label className="form-label">ID Number</label>
           <input
@@ -124,9 +160,9 @@ export default function RegistrationStep1({ onNext }) {
           />
         </div>
 
-        {/* Email */}
+        {/* Contact */}
         <div className="mb-3">
-          <label className="form-label">Email Address</label>
+          <label className="form-label">Email</label>
           <input
             type="email"
             name="email"
@@ -135,8 +171,6 @@ export default function RegistrationStep1({ onNext }) {
             onChange={handleChange}
           />
         </div>
-
-        {/* Contact Number */}
         <div className="mb-3">
           <label className="form-label">Contact Number</label>
           <input
@@ -148,14 +182,46 @@ export default function RegistrationStep1({ onNext }) {
           />
         </div>
 
-        {/* Physical Address */}
+        {/* Address */}
         <div className="mb-3">
-          <label className="form-label">Physical Address</label>
+          <label className="form-label">Street</label>
           <input
             type="text"
-            name="address"
+            name="street"
             className="form-control"
-            value={formData.address}
+            value={formData.street}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <label className="form-label">City</label>
+            <input
+              type="text"
+              name="city"
+              className="form-control"
+              value={formData.city}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col">
+            <label className="form-label">Province</label>
+            <input
+              type="text"
+              name="province"
+              className="form-control"
+              value={formData.province}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Country</label>
+          <input
+            type="text"
+            name="country"
+            className="form-control"
+            value={formData.country}
             onChange={handleChange}
           />
         </div>
@@ -172,22 +238,10 @@ export default function RegistrationStep1({ onNext }) {
             >
               <option value="">Month</option>
               {[
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December",
-              ].map((month, index) => (
-                <option key={month} value={index + 1}>
-                  {month}
-                </option>
+                "January","February","March","April","May","June",
+                "July","August","September","October","November","December"
+              ].map((month, i) => (
+                <option key={i} value={i + 1}>{month}</option>
               ))}
             </select>
             <select
@@ -198,9 +252,7 @@ export default function RegistrationStep1({ onNext }) {
             >
               <option value="">Day</option>
               {[...Array(31)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}
-                </option>
+                <option key={i} value={i + 1}>{i + 1}</option>
               ))}
             </select>
             <select
@@ -211,9 +263,7 @@ export default function RegistrationStep1({ onNext }) {
             >
               <option value="">Year</option>
               {[...Array(100)].map((_, i) => (
-                <option key={i} value={2025 - i}>
-                  {2025 - i}
-                </option>
+                <option key={i} value={2025 - i}>{2025 - i}</option>
               ))}
             </select>
           </div>
@@ -230,8 +280,6 @@ export default function RegistrationStep1({ onNext }) {
             onChange={handleChange}
           />
         </div>
-
-        {/* Confirm Password */}
         <div className="mb-3">
           <label className="form-label">Confirm Password</label>
           <input
@@ -262,7 +310,7 @@ export default function RegistrationStep1({ onNext }) {
 
         {/* Submit Button */}
         <button className="btn btn-primary w-100" onClick={handleSubmit}>
-          Next
+           Register
         </button>
 
         {/* Sign in link */}

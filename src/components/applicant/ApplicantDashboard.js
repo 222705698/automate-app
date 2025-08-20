@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import SharedLayout from "./sharedPages/SharedLayout";
+import SharedLayout from "../sharedPages/SharedLayout";
 
 export default function ApplicantDashboard({ userData, bookings }) {
   const navigate = useNavigate();
