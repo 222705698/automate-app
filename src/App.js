@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import LoginScreen from "./components/LoginScreen";
-import RegistrationStep1 from "./components/RegistrationStep1";
-import ApplicantDashboard from "./components/ApplicantDashboard";
-import AdminDashboard from "./components/AdminDashboard";
-import BookLearnersTest from "./components/BookLearnersTest";
-import BookDriversTest from "./components/BookDriverTest";
+import LoginScreen from "./components/SingUpLogin/LoginScreen";
+import RegistrationStep1 from "./components/SingUpLogin/RegistrationStep1";
+import ApplicantDashboard from "./components/applicant/ApplicantDashboard";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import BookLearnersTest from "./components/booking/BookLearnersTest";
+import BookDriversTest from "./components/booking/BookDriverTest";
 
 export default function App() {
   const [user, setUser] = useState(null);

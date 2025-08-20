@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaGoogle, FaChevronDown } from "react-icons/fa";
 
-import backgroundImage from "../components/images/automate-logo.png";
+import backgroundImage from "../images/automate-logo.png";
 
 export default function LoginScreen({ onLogin }) {
   const [isApplicant, setIsApplicant] = useState(true);
