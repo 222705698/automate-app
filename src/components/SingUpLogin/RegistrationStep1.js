@@ -46,16 +46,37 @@ export default function RegistrationStep1({ onNext }) {
       return false;
     }
 
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(formData.password)) {
-      setError(
-        "Password must be at least 8 characters, include uppercase, lowercase, number, and special character."
-      );
+    const password = formData.password.trim();
+    const confirmPassword = formData.confirmPassword.trim();
+
+    const hasLower = /[a-z]/.test(password);
+    const hasUpper = /[A-Z]/.test(password);
+    const hasDigit = /\d/.test(password);
+    const hasSpecial = /[@$!%*?&]/.test(password);
+    const hasLength = password.length >= 8;
+
+    if (!hasLower) {
+      setError("Password must include at least one lowercase letter.");
+      return false;
+    }
+    if (!hasUpper) {
+      setError("Password must include at least one uppercase letter.");
+      return false;
+    }
+    if (!hasDigit) {
+      setError("Password must include at least one number.");
+      return false;
+    }
+    if (!hasSpecial) {
+      setError("Password must include at least one special character (@$!%*?&).");
+      return false;
+    }
+    if (!hasLength) {
+      setError("Password must be at least 8 characters long.");
       return false;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return false;
     }
@@ -77,37 +98,35 @@ export default function RegistrationStep1({ onNext }) {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    // Format birthDate as yyyy-MM-dd
     const birthDate = `${formData.dobYear}-${String(formData.dobMonth).padStart(
       2,
       "0"
     )}-${String(formData.dobDay).padStart(2, "0")}`;
 
-    // Payload matching backend entity
-   const payload = {
-  firstName: formData.firstName,  // lowercase 'f'
-  lastName: formData.lastName,    // lowercase 'l'
-  idNumber: formData.idNumber,
-  birthDate: birthDate,           // lowercase 'b'
-  password: formData.password,
-  role: formData.role,
-  contact: {                      // lowercase 'c'
-    email: formData.email,
-    cellphone: formData.contactNumber,
-  },
-  address: {                      // lowercase 'a'
-    street: formData.street,
-    city: formData.city,
-    province: formData.province,
-    country: formData.country,
-  },
-};
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      idNumber: formData.idNumber,
+      birthDate: birthDate,
+      password: formData.password.trim(),
+      role: formData.role,
+      contact: {
+        email: formData.email,
+        cellphone: formData.contactNumber,
+      },
+      address: {
+        street: formData.street,
+        city: formData.city,
+        province: formData.province,
+        country: formData.country,
+      },
+    };
 
     try {
       const result = await ApiService.registerUser(payload);
       console.log("Registered successfully:", result);
       alert("Registration successful!");
-      onNext(payload); // optional: save in state
+      onNext(payload);
       navigate("/applicant");
     } catch (err) {
       console.error("Registration failed:", err);
@@ -310,7 +329,7 @@ export default function RegistrationStep1({ onNext }) {
 
         {/* Submit Button */}
         <button className="btn btn-primary w-100" onClick={handleSubmit}>
-           Register
+          Register
         </button>
 
         {/* Sign in link */}
