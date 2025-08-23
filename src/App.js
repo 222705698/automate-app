@@ -7,6 +7,11 @@ import ApplicantDashboard from "./components/applicant/ApplicantDashboard";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import BookLearnersTest from "./components/booking/BookLearnersTest";
 import BookDriversTest from "./components/booking/BookDriverTest";
+import VehicleRegistration from "./components/applicant/VehicleRegistration";
+import VehicleDisc from "./components/applicant/VehicleDisc";
+import PayTrafficTicket from "./components/applicant/PayTrafficTicket";
+
+
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -52,6 +57,14 @@ export default function App() {
           }
         />
 
+           {/* vehicle disc */}
+    <Route path="/VehicleRegistration" element={<VehicleRegistration />} />
+   <Route path="/vehicle-disc" element={<VehicleDisc />} />
+ <Route path="/pay-ticket" element={<PayTrafficTicket />} />
+
+
+
+
         {/* Booking routes */}
         <Route
           path="/book-learners-test"
@@ -69,6 +82,16 @@ export default function App() {
             />
           }
         />
+
+       {/*  <Route
+          path="/VehicleRegistration"
+          element={
+            <VehicleRegistration
+              onBook={(date) => handleBooking("Vehicle Registration", date)}
+            />
+          }
+        /> */}
+
 
         {/* Admin Dashboard */}
         <Route
