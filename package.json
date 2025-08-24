@@ -8,6 +8,10 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.11.0",
+<<<<<<< HEAD
+=======
+    "bootstrap": "^5.3.7",
+>>>>>>> c07d10fa4703a83b54c8c535bfda58558549e745
     "lucide-react": "^0.541.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
