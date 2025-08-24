@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , Link } from "react-router-dom";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import ApiService from "../../services/ApiService";
 
@@ -334,15 +335,14 @@ export default function RegistrationStep1({ onNext }) {
 
         {/* Sign in link */}
         <div className="text-center mt-3 text-muted">
-          Do not have an account?{" "}
-          <button
-            type="button"
-            className="btn btn-link p-0 text-primary"
-            onClick={() => alert("Redirect to login")}
-          >
-            Sign in
-          </button>
-        </div>
+  Already have an account?{" "}
+  <span
+    style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+    onClick={() => navigate("/")} // <-- change "/signin" to your actual sign-in route
+  >
+    Sign in
+  </span>
+</div>
       </div>
     </div>
   );

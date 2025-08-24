@@ -19,17 +19,21 @@ class ApiService {
       throw error;
     }}
   
+
   // Login user
-  static async loginUser(credentials) {
+  static async loginUser(email, password) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/login`, credentials);
+      // Call the backend to check login
+      const response = await axios.post(`${API_BASE_URL}/applicants/login`, {
+        contact: { email },  // match your backend Applicant object
+        password,            // user's password
+      });
       return response.data;
     } catch (error) {
       console.error("Login error:", error.response || error.message);
       throw error;
     }
   }
-
   // You can add more methods here for other endpoints
 }
 
