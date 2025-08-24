@@ -18,13 +18,12 @@ export default function App() {
   const [bookings, setBookings] = useState([]);
   const [payments, setPayments] = useState(0);
   const [pendingApprovals, setPendingApprovals] = useState([
-    { type: "Vehicle Disc", name: "John Doe" },
-    { type: "Test Result", name: "Sarah Smith" },
+   
   ]);
 
   const handleLogin = (data) => {
-    setUser({ ...data, firstName: "John", lastName: "Doe", email: data.email });
-  };
+ setUser({ ...data, isApplicant: true });
+    alert("Personal details saved: " + JSON.stringify(data));  };
 
   const handleRegisterNext = (data) => {
     setUser({ ...data, isApplicant: true });

@@ -44,11 +44,7 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
       title: "Register Vehicle",
       description: "Register your vehicle and get disc",
       icon: "📋",
-<<<<<<< HEAD
       action: () => navigate("/VehicleRegistration"),
-=======
-      action: () => navigate("/register-vehicle"),
->>>>>>> c07d10fa4703a83b54c8c535bfda58558549e745
       requires: null // Available to everyone
     },
     {
