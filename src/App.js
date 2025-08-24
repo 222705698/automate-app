@@ -1,17 +1,15 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import LoginScreen from "./components/SingUpLogin/LoginScreen";
 import RegistrationStep1 from "./components/SingUpLogin/RegistrationStep1";
 import ApplicantDashboard from "./components/applicant/ApplicantDashboard";
 import AdminDashboard from "./components/admin/AdminDashboard";
-import BookLearnersTest from "./components/booking/BookLearnersTest";
-import BookDriversTest from "./components/booking/BookDriverTest";
 import VehicleRegistration from "./components/applicant/VehicleRegistration";
 import VehicleDisc from "./components/applicant/VehicleDisc";
 import PayTrafficTicket from "./components/applicant/PayTrafficTicket";
-
-
+import Booking from './components/applicant/Booking';
+import BookingDetails from './components/applicant/BookingDetails';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -56,41 +54,23 @@ export default function App() {
           }
         />
 
-           {/* vehicle disc */}
-    <Route path="/VehicleRegistration" element={<VehicleRegistration />} />
-   <Route path="/vehicle-disc" element={<VehicleDisc />} />
- <Route path="/pay-ticket" element={<PayTrafficTicket />} />
-
-
-
+        {/* vehicle disc */}
+        <Route path="/VehicleRegistration" element={<VehicleRegistration />} />
+        <Route path="/vehicle-disc" element={<VehicleDisc />} />
+        <Route path="/pay-ticket" element={<PayTrafficTicket />} />
+        <Route path="/booking-details/:id" element={<BookingDetails />} />
 
         {/* Booking routes */}
         <Route
-          path="/book-learners-test"
+          path="/booking"
           element={
-            <BookLearnersTest
-              onBook={(date) => handleBooking("Learners Test", date)}
-            />
+            user && user.isApplicant ? (
+              <Booking onBook={(date) => handleBooking("Booking", date)} />
+            ) : (
+              <Navigate to="/" replace />
+            )
           }
         />
-        <Route
-          path="/book-drivers-test"
-          element={
-            <BookDriversTest
-              onBook={(date) => handleBooking("Driver's Test", date)}
-            />
-          }
-        />
-
-       {/*  <Route
-          path="/VehicleRegistration"
-          element={
-            <VehicleRegistration
-              onBook={(date) => handleBooking("Vehicle Registration", date)}
-            />
-          }
-        /> */}
-
 
         {/* Admin Dashboard */}
         <Route
