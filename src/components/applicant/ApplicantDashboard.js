@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SharedLayout from "../sharedPages/SharedLayout";
+import Booking from ".././applicant/Booking"
+import BookingDetails from ".././applicant/BookingDetails"
+
 
 export default function ApplicantDashboard({ userData, bookings, vehicles }) {
   const navigate = useNavigate();
@@ -25,30 +28,27 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
   };
 
   // Service cards data
-  const services = [
-    {
-      title: "Book Learners Test",
-      description: "Schedule your learners license test",
-      icon: "📝",
-      action: () => navigate("/book-learners-test"),
-      requires: null // Available to everyone
-    },
-    {
-      title: "Book Drivers Test",
-      description: "Schedule your drivers license test",
-      icon: "🚗",
-      action: () => navigate("/book-drivers-test"),
-      requires: "learners" // Requires learners permit
-    },
+ const services = [
+  {
+    title: "Book Learners Test",
+    description: "Schedule your learners license test",
+    icon: "📝",
+    action: () => navigate("/booking?type=learners"),
+    requires: null
+  },
+  {
+    title: "Book Drivers Test",
+    description: "Schedule your drivers license test",
+    icon: "🚗",
+    action: () => navigate("/booking?type=drivers"),
+    requires: "learners"
+  },
+
     {
       title: "Register Vehicle",
       description: "Register your vehicle and get disc",
       icon: "📋",
-<<<<<<< HEAD
       action: () => navigate("/VehicleRegistration"),
-=======
-      action: () => navigate("/register-vehicle"),
->>>>>>> c07d10fa4703a83b54c8c535bfda58558549e745
       requires: null // Available to everyone
     },
     {
