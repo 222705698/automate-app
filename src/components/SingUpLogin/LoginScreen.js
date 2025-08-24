@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaGoogle, FaChevronDown } from "react-icons/fa";
-
+import ApiService from "../../services/ApiService";
 import backgroundImage from "../images/automate-logo.png";
 
 export default function LoginScreen({ onLogin }) {
@@ -11,25 +11,56 @@ export default function LoginScreen({ onLogin }) {
   const [showPass, setShowPass] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  function handleLogin() {
-    onLogin({ isApplicant, email });
+const handleLogin = async () => {
+  if (!email || !password) {
+    setError("Please enter email and password.");
+    return;
+  }
+
+  try {
+    // Call API service
+    const response = await ApiService.loginUser(email, password);
+
+    // If login successful
+    alert(response); // response should be a string like "Login successful!"
+
+    onLogin({ ...response, isApplicant: true });
     if (isApplicant) navigate("/applicant");
     else navigate("/admin");
+  } catch (err) {
+    // Extract message safely
+    if (err.response && err.response.data) {
+      // If your backend sends a string message
+      if (typeof err.response.data === "string") {
+        setError(err.response.data);
+      } else if (err.response.data.error) {
+        // If your backend sends an object with `error` key
+        setError(err.response.data.error);
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    } else {
+      setError("Login failed. Please try again.");
+    }
   }
+};
+
 
   return (
     <div style={styles.background}>
-      {/* Blurred Background Image */}
       <div style={styles.backgroundImage}></div>
       <div style={styles.container}>
         <div style={styles.card}>
           <h1 style={styles.title}>Sign in to AutoMate</h1>
-          
+
+          {error && <div style={{ color: "red", marginBottom: "16px" }}>{error}</div>}
+
           {/* User Type Dropdown */}
           <div style={styles.dropdownContainer}>
-            <button 
+            <button
               style={styles.dropdownButton}
               onClick={() => setShowDropdown(!showDropdown)}
             >
@@ -41,7 +72,7 @@ export default function LoginScreen({ onLogin }) {
                 <button
                   style={{
                     ...styles.dropdownItem,
-                    backgroundColor: isApplicant ? "#f6f7f9" : "transparent"
+                    backgroundColor: isApplicant ? "#f6f7f9" : "transparent",
                   }}
                   onClick={() => {
                     setIsApplicant(true);
@@ -53,7 +84,7 @@ export default function LoginScreen({ onLogin }) {
                 <button
                   style={{
                     ...styles.dropdownItem,
-                    backgroundColor: !isApplicant ? "#f6f7f9" : "transparent"
+                    backgroundColor: !isApplicant ? "#f6f7f9" : "transparent",
                   }}
                   onClick={() => {
                     setIsApplicant(false);
@@ -66,7 +97,7 @@ export default function LoginScreen({ onLogin }) {
             )}
           </div>
 
-          {/* Email Field */}
+          {/* Email */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email</label>
             <input
@@ -78,7 +109,7 @@ export default function LoginScreen({ onLogin }) {
             />
           </div>
 
-          {/* Password Field */}
+          {/* Password */}
           <div style={styles.inputGroup}>
             <div style={styles.passwordHeader}>
               <label style={styles.label}>Password</label>
@@ -94,7 +125,7 @@ export default function LoginScreen({ onLogin }) {
                 style={styles.input}
                 placeholder="Enter your password"
               />
-              <button 
+              <button
                 style={styles.togglePassword}
                 onClick={() => setShowPass(!showPass)}
               >
@@ -145,8 +176,7 @@ export default function LoginScreen({ onLogin }) {
 
           {/* Security Note */}
           <p style={styles.securityNote}>
-            If you use two-step authentication, keep your backup codes in a secure place. 
-            They can help you recover access to your account if you get locked out.
+            If you use two-step authentication, keep your backup codes in a secure place.
           </p>
         </div>
       </div>
