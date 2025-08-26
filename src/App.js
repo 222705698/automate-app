@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import LoginScreen from "./components/SingUpLogin/LoginScreen";
 import RegistrationStep1 from "./components/SingUpLogin/RegistrationStep1";
@@ -8,20 +13,24 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 import VehicleRegistration from "./components/applicant/VehicleRegistration";
 import VehicleDisc from "./components/applicant/VehicleDisc";
 import PayTrafficTicket from "./components/applicant/PayTrafficTicket";
-import Booking from './components/applicant/Booking';
-import BookingDetails from './components/applicant/BookingDetails';
+import Booking from "./components/applicant/Booking";
+import BookingDetails from "./components/applicant/BookingDetails";
 
 export default function App() {
   const [user, setUser] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [payments, setPayments] = useState(0);
-  const [pendingApprovals, setPendingApprovals] = useState([
-   
-  ]);
 
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+
+  const handleVehicleRegistered = (vehicle) => {
+    setVehicles((prev) => [...prev, vehicle]);
+  };
   const handleLogin = (data) => {
- setUser({ ...data, isApplicant: true });
-    alert("Personal details saved: " + JSON.stringify(data));  };
+    setUser({ ...data, isApplicant: true , idNumber: data.idNumber  });
+    alert("Personal details saved: " + JSON.stringify(data));
+  };
 
   const handleRegisterNext = (data) => {
     setUser({ ...data, isApplicant: true });
@@ -47,7 +56,11 @@ export default function App() {
           path="/applicant"
           element={
             user && user.isApplicant ? (
-              <ApplicantDashboard userData={user} bookings={bookings} />
+              <ApplicantDashboard
+                userData={user}
+                bookings={bookings}
+                vehicles={vehicles}
+              />
             ) : (
               <LoginScreen onLogin={handleLogin} />
             )
@@ -55,7 +68,21 @@ export default function App() {
         />
 
         {/* vehicle disc */}
-        <Route path="/VehicleRegistration" element={<VehicleRegistration />} />
+        {/* <Route path="/VehicleRegistration" element={<VehicleRegistration user={user} onComplete={handleVehicleRegistered} />} /> */}
+        <Route
+          path="/VehicleRegistration"
+          element={
+            user && user.isApplicant ? (
+              <VehicleRegistration
+                user={user}
+                onComplete={handleVehicleRegistered}
+              />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
         <Route path="/vehicle-disc" element={<VehicleDisc />} />
         <Route path="/pay-ticket" element={<PayTrafficTicket />} />
         <Route path="/booking-details/:id" element={<BookingDetails />} />

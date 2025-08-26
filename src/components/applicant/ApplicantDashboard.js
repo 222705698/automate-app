@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SharedLayout from "../sharedPages/SharedLayout";
-import Booking from ".././applicant/Booking"
-import BookingDetails from ".././applicant/BookingDetails"
-
+import Booking from ".././applicant/Booking";
+import BookingDetails from ".././applicant/BookingDetails";
+import Login from "../SingUpLogin/LoginScreen";
+import VehicleRegistration from "../applicant/VehicleRegistration";
 
 export default function ApplicantDashboard({ userData, bookings, vehicles }) {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
   const [licenseNumber, setLicenseNumber] = useState("");
   const [userLicenseInfo, setUserLicenseInfo] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [myVehicles, setMyVehicles] = useState(vehicles || []);
+  const [user, setUser] = useState(null); // store logged-in applicant
 
   const handleLicenseSelection = (type) => {
     setLicenseType(type);
@@ -26,45 +29,54 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
     setShowLicenseModal(false);
     setLicenseNumber("");
   };
+  // When a vehicle is registered successfully, update the dashboard list
+  //  const handleVehicleRegistered = (vehicle) => {
+  // setMyVehicles((prev) => [...prev, vehicle]);
+  //};
+  // ✅ UPDATED: Callback after vehicle registration
+  const handleVehicleRegistered = (vehicleData) => {
+    console.log("Vehicle registered:", vehicleData);
+    // You can update parent state or show a message here
+  };
 
   // Service cards data
- const services = [
-  {
-    title: "Book Learners Test",
-    description: "Schedule your learners license test",
-    icon: "📝",
-    action: () => navigate("/booking?type=learners"),
-    requires: null
-  },
-  {
-    title: "Book Drivers Test",
-    description: "Schedule your drivers license test",
-    icon: "🚗",
-    action: () => navigate("/booking?type=drivers"),
-    requires: "learners"
-  },
+  const services = [
+    {
+      title: "Book Learners Test",
+      description: "Schedule your learners license test",
+      icon: "📝",
+      action: () => navigate("/booking?type=learners"),
+      requires: null,
+    },
+    {
+      title: "Book Drivers Test",
+      description: "Schedule your drivers license test",
+      icon: "🚗",
+      action: () => navigate("/booking?type=drivers"),
+      requires: "learners",
+    },
 
     {
       title: "Register Vehicle",
       description: "Register your vehicle and get disc",
       icon: "📋",
       action: () => navigate("/VehicleRegistration"),
-      requires: null // Available to everyone
+      requires: null, // Available to everyone
     },
     {
       title: "Renew Vehicle Disc",
       description: "Renew your vehicle disc",
       icon: "🔄",
       action: () => navigate("/renew-disc"),
-      requires: null // Available to everyone
+      requires: null, // Available to everyone
     },
     {
       title: "Pay Traffic Ticket",
       description: "Pay outstanding traffic fines",
       icon: "💰",
       action: () => navigate("/pay-ticket"),
-      requires: null // Available to everyone
-    }
+      requires: null, // Available to everyone
+    },
   ];
 
   // Check if user can access a service
@@ -75,13 +87,28 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
 
   return (
     <SharedLayout>
-      <div className="container mt-4" style={{ backgroundColor: "#f8f9fa", minHeight: "100vh", padding: "20px" }}>
+      <div
+        className="container mt-4"
+        style={{
+          backgroundColor: "#f8f9fa",
+          minHeight: "100vh",
+          padding: "20px",
+        }}
+      >
         {/* Header with strong blue background */}
-        <div className="p-4 mb-4 rounded text-white" style={{backgroundColor: "#0066CC"}}>
+        <div
+          className="p-4 mb-4 rounded text-white"
+          style={{ backgroundColor: "#0066CC" }}
+        >
           <h2 className="mb-2">Welcome, {userData.firstName}</h2>
-          <p className="mb-0">Manage your driving licenses, vehicle registration, and traffic services</p>
+          <p className="mb-0">
+            Manage your driving licenses, vehicle registration, and traffic
+            services
+          </p>
         </div>
-        
+
+     
+
         {/* Space between welcome and question */}
         <div className="mb-4"></div>
 
@@ -89,19 +116,21 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
         {!userLicenseInfo && (
           <div className="card shadow-sm border-0 mb-5">
             <div className="card-body p-4">
-              <h4 className="card-title mb-3 text-dark">Do you have a driver's license or learner's permit?</h4>
+              <h4 className="card-title mb-3 text-dark">
+                Do you have a driver's license or learner's permit?
+              </h4>
               <div className="d-flex gap-3 flex-wrap">
-                <button 
+                <button
                   className="btn btn-lg btn-outline-primary"
                   onClick={() => handleLicenseSelection("license")}
-                  style={{minWidth: '180px'}}
+                  style={{ minWidth: "180px" }}
                 >
                   Driver's License
                 </button>
-                <button 
+                <button
                   className="btn btn-lg btn-outline-primary"
                   onClick={() => handleLicenseSelection("learners")}
-                  style={{minWidth: '180px'}}
+                  style={{ minWidth: "180px" }}
                 >
                   Learner's Permit
                 </button>
@@ -115,10 +144,13 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
           <div className="card shadow-sm border-0 mb-5 bg-light">
             <div className="card-body p-3">
               <h5 className="card-title text-dark mb-1">
-                {userLicenseInfo.type === "license" ? "Driver's License" : "Learner's Permit"} Information
+                {userLicenseInfo.type === "license"
+                  ? "Driver's License"
+                  : "Learner's Permit"}{" "}
+                Information
               </h5>
               <p className="mb-0">Number: {userLicenseInfo.number}</p>
-              <button 
+              <button
                 className="btn btn-sm btn-outline-secondary mt-2"
                 onClick={() => setUserLicenseInfo(null)}
               >
@@ -132,27 +164,42 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
         <div className="row g-4 mb-5">
           {services.map((service, index) => {
             const disabled = service.requires && !canAccessService(service);
-            
+
             return (
               <div key={index} className="col-md-4">
-                <div 
-                  className={`card h-100 border-0 p-4 ${disabled ? 'bg-light' : ''}`}
-                  style={{ 
-                    cursor: disabled ? 'not-allowed' : 'pointer',
+                <div
+                  className={`card h-100 border-0 p-4 ${
+                    disabled ? "bg-light" : ""
+                  }`}
+                  style={{
+                    cursor: disabled ? "not-allowed" : "pointer",
                     opacity: disabled ? 0.6 : 1,
-                    backgroundColor: 'white',
-                    boxShadow: hoveredCard === index ? '0 10px 20px rgba(0, 0, 0, 0.15)' : '0 4px 8px rgba(0, 0, 0, 0.1)',
-                    transition: 'box-shadow 0.3s ease, transform 0.3s ease',
-                    transform: hoveredCard === index ? 'translateY(-5px)' : 'none'
+                    backgroundColor: "white",
+                    boxShadow:
+                      hoveredCard === index
+                        ? "0 10px 20px rgba(0, 0, 0, 0.15)"
+                        : "0 4px 8px rgba(0, 0, 0, 0.1)",
+                    transition: "box-shadow 0.3s ease, transform 0.3s ease",
+                    transform:
+                      hoveredCard === index ? "translateY(-5px)" : "none",
                   }}
                   onClick={disabled ? null : service.action}
                   onMouseEnter={() => !disabled && setHoveredCard(index)}
                   onMouseLeave={() => setHoveredCard(null)}
                 >
                   <div className="card-body text-center p-3">
-                    <div className="mb-3" style={{fontSize: '2.5rem'}}>{service.icon}</div>
-                    <h4 className="card-title mb-3" style={{color: "#0066CC"}}>{service.title}</h4>
-                    <p className="card-text text-muted">{service.description}</p>
+                    <div className="mb-3" style={{ fontSize: "2.5rem" }}>
+                      {service.icon}
+                    </div>
+                    <h4
+                      className="card-title mb-3"
+                      style={{ color: "#0066CC" }}
+                    >
+                      {service.title}
+                    </h4>
+                    <p className="card-text text-muted">
+                      {service.description}
+                    </p>
                     {disabled && (
                       <div className="mt-3">
                         <span className="badge bg-warning text-dark">
@@ -171,8 +218,14 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
         <div className="row g-4">
           {/* Recent Bookings */}
           <div className="col-md-6">
-            <div className="card shadow-sm border-0 h-100" style={{backgroundColor: 'white'}}>
-              <div className="card-header text-white py-3" style={{backgroundColor: "#0066CC"}}>
+            <div
+              className="card shadow-sm border-0 h-100"
+              style={{ backgroundColor: "white" }}
+            >
+              <div
+                className="card-header text-white py-3"
+                style={{ backgroundColor: "#0066CC" }}
+              >
                 <h4 className="mb-0">Recent Bookings</h4>
               </div>
               <div className="card-body p-4">
@@ -188,7 +241,9 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-muted text-center my-4 fs-5">No bookings yet</p>
+                  <p className="text-muted text-center my-4 fs-5">
+                    No bookings yet
+                  </p>
                 )}
               </div>
             </div>
@@ -196,8 +251,14 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
 
           {/* My Vehicles */}
           <div className="col-md-6">
-            <div className="card shadow-sm border-0 h-100" style={{backgroundColor: 'white'}}>
-              <div className="card-header text-white py-3" style={{backgroundColor: "#0066CC"}}>
+            <div
+              className="card shadow-sm border-0 h-100"
+              style={{ backgroundColor: "white" }}
+            >
+              <div
+                className="card-header text-white py-3"
+                style={{ backgroundColor: "#0066CC" }}
+              >
                 <h4 className="mb-0">My Vehicles</h4>
               </div>
               <div className="card-body p-4">
@@ -206,14 +267,20 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
                     {vehicles.map((vehicle, index) => (
                       <li key={index} className="list-group-item py-3">
                         <div className="d-flex justify-content-between align-items-center">
-                          <span className="fw-medium fs-6">{vehicle.make} {vehicle.model}</span>
-                          <span className="text-muted">{vehicle.licensePlate}</span>
+                          <span className="fw-medium fs-6">
+                            {vehicle.vehicleName} {vehicle.vehicleColor}
+                          </span>
+                          <span className="text-muted">
+                            {vehicle.licensePlate}
+                          </span>
                         </div>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-muted text-center my-4 fs-5">No vehicles registered</p>
+                  <p className="text-muted text-center my-4 fs-5">
+                    No vehicles registered
+                  </p>
                 )}
               </div>
             </div>
@@ -225,20 +292,30 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
           <div className="modal show d-block" tabIndex="-1">
             <div className="modal-dialog">
               <div className="modal-content">
-                <div className="modal-header" style={{backgroundColor: "#0066CC", color: "white"}}>
+                <div
+                  className="modal-header"
+                  style={{ backgroundColor: "#0066CC", color: "white" }}
+                >
                   <h5 className="modal-title">
-                    Enter Your {licenseType === "license" ? "Driver's License" : "Learner's Permit"} Number
+                    Enter Your{" "}
+                    {licenseType === "license"
+                      ? "Driver's License"
+                      : "Learner's Permit"}{" "}
+                    Number
                   </h5>
-                  <button 
-                    type="button" 
-                    className="btn-close" 
+                  <button
+                    type="button"
+                    className="btn-close"
                     onClick={() => setShowLicenseModal(false)}
                   ></button>
                 </div>
                 <div className="modal-body">
                   <div className="mb-3">
                     <label htmlFor="licenseNumber" className="form-label">
-                      {licenseType === "license" ? "Driver's License" : "Learner's Permit"} Number
+                      {licenseType === "license"
+                        ? "Driver's License"
+                        : "Learner's Permit"}{" "}
+                      Number
                     </label>
                     <input
                       type="text"
@@ -246,21 +323,25 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
                       id="licenseNumber"
                       value={licenseNumber}
                       onChange={(e) => setLicenseNumber(e.target.value)}
-                      placeholder={`Enter your ${licenseType === "license" ? "driver's license" : "learner's permit"} number`}
+                      placeholder={`Enter your ${
+                        licenseType === "license"
+                          ? "driver's license"
+                          : "learner's permit"
+                      } number`}
                     />
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary" 
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
                     onClick={() => setShowLicenseModal(false)}
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="button" 
-                    className="btn btn-primary" 
+                  <button
+                    type="button"
+                    className="btn btn-primary"
                     onClick={saveLicenseInfo}
                     disabled={!licenseNumber.trim()}
                   >
