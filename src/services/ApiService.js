@@ -6,6 +6,18 @@ const API_BASE_URL = "http://localhost:8080/capstone";
 
 
 class ApiService {
+  static API_BASE_URL = "http://localhost:8080/api/test-appointments";
+
+  // Create a new test appointment
+  static async createTestAppointment(appointmentData) {
+    try {
+      const response = await axios.post(`${this.API_BASE_URL}/create`, appointmentData);
+      return response.data;
+    } catch (error) {
+      console.error("Booking creation error:", error.response || error.message);
+      throw error;
+    }
+  }
   // Register a new user
 
 
