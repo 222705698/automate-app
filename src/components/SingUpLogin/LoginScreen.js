@@ -12,42 +12,63 @@ export default function LoginScreen({ onLogin }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [error, setError] = useState("");
+  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
 
-const handleLogin = async () => {
-  if (!email || !password) {
-    setError("Please enter email and password.");
-    return;
-  }
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Please enter email and password.");
+      return;
+    }
 
-  try {
-    // Call API service
-    const response = await ApiService.loginUser(email, password);
-
-    // If login successful
-    alert(response); // response should be a string like "Login successful!"
-
-    onLogin({ ...response, isApplicant: true });
-    if (isApplicant) navigate("/applicant");
-    else navigate("/admin");
-  } catch (err) {
-    // Extract message safely
-    if (err.response && err.response.data) {
-      // If your backend sends a string message
-      if (typeof err.response.data === "string") {
-        setError(err.response.data);
-      } else if (err.response.data.error) {
-        // If your backend sends an object with `error` key
-        setError(err.response.data.error);
+    try {
+      // Call API service
+      const response = await ApiService.loginUser(email, password);
+      
+      // Extract user data from response (adjust according to your API response structure)
+      const user = response.user || response;
+      
+      // Check if firstName exists in the response
+      if (user && user.firstName) {
+        // Show personalized welcome message
+        alert(`Welcome ${user.firstName}!`);
+        
+        // Store user data in state
+        setUserData(user);
+        
+        // Pass user data to onLogin callback
+        onLogin({ ...user, isApplicant });
+        
+        // Navigate based on user type
+        if (isApplicant) {
+          navigate("/applicant");
+        } else {
+          navigate("/admin");
+        }
+      } else {
+        // Handle case where firstName is not in response
+        alert("Welcome!");
+        onLogin({ email, isApplicant });
+        if (isApplicant) navigate("/applicant");
+        else navigate("/admin");
+      }
+    } catch (err) {
+      // Extract message safely
+      if (err.response && err.response.data) {
+        // If your backend sends a string message
+        if (typeof err.response.data === "string") {
+          setError(err.response.data);
+        } else if (err.response.data.error) {
+          // If your backend sends an object with `error` key
+          setError(err.response.data.error);
+        } else {
+          setError("Login failed. Please try again.");
+        }
       } else {
         setError("Login failed. Please try again.");
       }
-    } else {
-      setError("Login failed. Please try again.");
     }
-  }
-};
-
+  };
 
   return (
     <div style={styles.background}>
@@ -185,7 +206,7 @@ const handleLogin = async () => {
 }
 
 const styles = {
-   background: {
+  background: {
     position: "relative",
     minHeight: "100vh",
     display: "flex",
@@ -268,9 +289,6 @@ const styles = {
     fontSize: "14px",
     cursor: "pointer",
     color: "#1a1a1a",
-    ":hover": {
-      backgroundColor: "#f6f7f9",
-    },
   },
   inputGroup: {
     marginBottom: "20px",
@@ -294,11 +312,6 @@ const styles = {
     border: "1px solid #d1d5db",
     borderRadius: "6px",
     fontSize: "14px",
-    ":focus": {
-      borderColor: "#6366f1",
-      outline: "none",
-      boxShadow: "0 0 0 2px rgba(99, 102, 241, 0.2)",
-    },
   },
   passwordInputWrapper: {
     position: "relative",
@@ -318,9 +331,6 @@ const styles = {
     color: "#6366f1",
     textDecoration: "none",
     fontWeight: "500",
-    ":hover": {
-      textDecoration: "underline",
-    },
   },
   rememberMe: {
     display: "flex",
@@ -350,9 +360,6 @@ const styles = {
     fontWeight: "600",
     marginBottom: "24px",
     cursor: "pointer",
-    ":hover": {
-      backgroundColor: "#4f46e5",
-    },
   },
   divider: {
     display: "flex",
@@ -384,9 +391,6 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    ":hover": {
-      backgroundColor: "#f6f7f9",
-    },
   },
   googleIcon: {
     marginRight: "8px",
@@ -402,9 +406,6 @@ const styles = {
     color: "#1013d5ff",
     fontWeight: "500",
     textDecoration: "none",
-    ":hover": {
-      textDecoration: "underline",
-    },
   },
   securityNote: {
     fontSize: "13px",
