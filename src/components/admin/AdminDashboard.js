@@ -1,210 +1,313 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  DollarSign, 
-  Calendar, 
+// src/components/AdminDashboard.js
+import React, { useState, useEffect } from "react";
+import {
+  Users,
+  DollarSign,
+  Calendar,
   FileText,
-  CheckCircle,
-  XCircle,
   Eye,
   Trash2,
-  Search
-} from 'lucide-react';
+  Search,
+  MoreVertical
+} from "lucide-react";
+import ApiService from "../../services/ApiService";
 
 export default function AdminDashboard() {
   const [applicants, setApplicants] = useState([]);
-  const [payments, setPayments] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTab, setSelectedTab] = useState('applicants');
+  const [payments, setPayments] = useState([]);
+  const [selectedTab, setSelectedTab] = useState("applicants");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    // Mock data
-    setApplicants([
-      { id: 1, name: 'John Doe', email: 'john@example.com', createdAt: '2024-01-10', hasLearners: true },
-      { id: 2, name: 'Jane Smith', email: 'jane@example.com', createdAt: '2024-01-12', hasDrivers: true },
-    ]);
-
-    setPayments([
-      { id: 1, userId: 'user1', amount: 250, type: 'Learners Test', date: '2024-01-15', status: 'completed' },
-      { id: 2, userId: 'user2', amount: 450, type: 'Drivers Test', date: '2024-01-14', status: 'pending' },
-    ]);
-
-    setBookings([
-      { id: 1, userId: 'user1', userName: 'John Doe', type: 'Learners Test', date: '2024-01-20', status: 'pending', submittedAt: '2024-01-15T10:00:00Z' },
-      { id: 2, userId: 'user2', userName: 'Jane Smith', type: 'Drivers Test', date: '2024-01-22', status: 'approved', submittedAt: '2024-01-14T14:30:00Z', approvedAt: '2024-01-16T09:15:00Z' },
-    ]);
+    fetchApplicants();
+    fetchBookings();
+    fetchPayments();
   }, []);
 
-  const handleDeleteApplicant = (id) => {
-    if (window.confirm('Delete this applicant?')) setApplicants(applicants.filter(a => a.id !== id));
+  const fetchApplicants = async () => {
+    try {
+      const data = await ApiService.getApplicants();
+      setApplicants(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleApproveBooking = (id) => {
-    setBookings(bookings.map(b => b.id === id ? { ...b, status: 'approved', approvedAt: new Date().toISOString() } : b));
+  const fetchBookings = async () => {
+    try {
+      const data = await ApiService.getBookings();
+      setBookings(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDeclineBooking = (id) => {
-    const reason = window.prompt('Reason for declining?');
-    if (!reason) return;
-    setBookings(bookings.map(b => b.id === id ? { ...b, status: 'declined', declinedAt: new Date().toISOString(), declineReason: reason } : b));
+  const fetchPayments = async () => {
+    try {
+      const data = await ApiService.getPayments();
+      setPayments(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
-
-  const filteredApplicants = applicants.filter(a => 
-    a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const stats = [
-    { title: 'Total Applicants', value: applicants.length, icon: Users, color: 'from-blue-500 to-blue-600' },
-    { title: 'Total Revenue', value: `R ${payments.reduce((sum, p) => sum + p.amount, 0).toLocaleString()}`, icon: DollarSign, color: 'from-green-500 to-green-600' },
-    { title: 'Pending Bookings', value: bookings.filter(b => b.status === 'pending').length, icon: Calendar, color: 'from-yellow-500 to-orange-500' },
-    { title: 'Completed Payments', value: payments.filter(p => p.status === 'completed').length, icon: FileText, color: 'from-purple-500 to-purple-600' },
+    {
+      title: "TOTAL APPLICANTS",
+      value: applicants.length,
+      icon: Users,
+      color: "bg-primary",
+    },
+    {
+      title: "TOTAL REVENUE",
+      value: `R ${payments.reduce((sum, p) => sum + p.amount, 0).toLocaleString()}`,
+      icon: DollarSign,
+      color: "bg-success",
+    },
+    {
+      title: "PENDING BOOKINGS",
+      value: bookings.filter((b) => b.status === "PENDING").length,
+      icon: Calendar,
+      color: "bg-warning",
+    },
+    {
+      title: "COMPLETED PAYMENTS",
+      value: payments.filter((p) => p.status === "COMPLETED").length,
+      icon: FileText,
+      color: "bg-info",
+    },
+  ];
+
+  const filteredApplicants = applicants.filter(
+    (a) =>
+      a.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.contact.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Sample data for bookings as shown in the screenshot
+  const bookingItems = [
+    {
+      type: "Learners Test",
+      applicant: "John Doe",
+      date: "2024-01-20",
+      submitted: "1/15/2024",
+      status: "submitted"
+    },
+    {
+      type: "Drivers Test",
+      applicant: "Jane Smith",
+      date: "2024-01-22",
+      submitted: "1/14/2024",
+      approved: "1/16/2024",
+      status: "approved"
+    },
+    {
+      type: "Learners Test",
+      applicant: "Mrs. Lickers",
+      status: "pending"
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-4xl font-bold text-gray-800 mb-2">Admin Dashboard</h1>
-      <p className="text-gray-600 mb-8">Manage applicants, bookings, and payments</p>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, i) => {
-          const Icon = stat.icon;
-          return (
-            <div key={i} className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300">
-              <div className={`h-2 bg-gradient-to-r ${stat.color}`}></div>
-              <div className="p-6 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 uppercase">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                </div>
-                <div className={`p-4 rounded-full bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-md`}>
-                  <Icon className="h-7 w-7 text-white" />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Tabs */}
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div className="border-b border-gray-200">
-          <nav className="flex">
-            {['applicants','bookings','payments'].map(tab => (
-              <button
-                key={tab}
-                onClick={() => setSelectedTab(tab)}
-                className={`px-6 py-3 text-sm font-semibold border-b-2 ${
-                  selectedTab===tab ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </nav>
+    <div className="min-h-screen bg-gradient-to-b from-blue-800 to-green-600 text-gray-900 p-3">
+      <div className="container-fluid">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1 className="h3 fw-bold text-white">Admin Dashboard</h1>
+          <p className="text-light mb-0">Manage applicants, bookings, and payments</p>
         </div>
 
-        <div className="p-6 space-y-6">
-          {/* Applicants Table */}
-          {selectedTab==='applicants' && (
-            <div className="bg-gray-50 rounded-2xl shadow p-6">
-              <div className="mb-4 relative max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input 
-                  type="text"
-                  placeholder="Search applicants..."
-                  value={searchTerm}
-                  onChange={e=>setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Joined</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredApplicants.map(a => (
-                      <tr key={a.id} className="hover:bg-gray-100 transition-colors">
-                        <td className="px-6 py-4">{a.name}</td>
-                        <td className="px-6 py-4">{a.email}</td>
-                        <td className="px-6 py-4">{new Date(a.createdAt).toLocaleDateString()}</td>
-                        <td className="px-6 py-4 flex space-x-3">
-                          <button className="text-blue-600 hover:text-blue-800"><Eye /></button>
-                          <button className="text-red-600 hover:text-red-800" onClick={()=>handleDeleteApplicant(a.id)}><Trash2 /></button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Bookings */}
-          {selectedTab==='bookings' && (
-            <div className="bg-gray-50 rounded-2xl shadow p-6 space-y-4">
-              {bookings.map(b => (
-                <div key={b.id} className="border border-gray-200 rounded-xl p-4 flex justify-between items-center hover:shadow-md transition-shadow duration-200">
-                  <div>
-                    <h3 className="text-lg font-medium">{b.type}</h3>
-                    <p className="text-gray-500 text-sm">Applicant: {b.userName}</p>
-                    <p className="text-gray-500 text-sm">Date: {b.date}</p>
-                    <p className="text-gray-500 text-sm">Submitted: {new Date(b.submittedAt).toLocaleDateString()}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                      b.status==='pending'?'bg-yellow-100 text-yellow-800':
-                      b.status==='approved'?'bg-green-100 text-green-800':'bg-red-100 text-red-800'
-                    }`}>{b.status}</span>
-                    {b.status==='pending' && <>
-                      <button onClick={()=>handleApproveBooking(b.id)} className="flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs"><CheckCircle className="h-4 w-4 mr-1"/>Approve</button>
-                      <button onClick={()=>handleDeclineBooking(b.id)} className="flex items-center px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs"><XCircle className="h-4 w-4 mr-1"/>Decline</button>
-                    </>}
+        {/* Stats */}
+        <div className="row mb-4">
+          {stats.map((stat, i) => {
+            const Icon = stat.icon;
+            return (
+              <div key={i} className="col-md-6 col-lg-3 mb-3">
+                <div className="card shadow-sm h-100">
+                  <div className="card-body">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div>
+                        <p className="text-muted small text-uppercase fw-bold mb-1">{stat.title}</p>
+                        <p className="h4 fw-bold text-dark mb-0">{stat.value}</p>
+                      </div>
+                      <div className={`p-3 rounded ${stat.color} text-white`}>
+                        <Icon className="h-6 w-6" />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            );
+          })}
+        </div>
 
-          {/* Payments */}
-          {selectedTab==='payments' && (
-            <div className="bg-gray-50 rounded-2xl shadow p-6 overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">User</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {payments.map(p => (
-                    <tr key={p.id} className="hover:bg-gray-100 transition-colors">
-                      <td className="px-6 py-4">R {p.amount}</td>
-                      <td className="px-6 py-4">{p.type}</td>
-                      <td className="px-6 py-4">{p.date}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          p.status==='completed'?'bg-green-100 text-green-800':'bg-yellow-100 text-yellow-800'
-                        }`}>{p.status}</span>
-                      </td>
-                      <td className="px-6 py-4">{p.userId}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        <div className="row">
+          {/* Left Panel - Tabs */}
+          <div className="col-lg-8 mb-4">
+            <div className="card shadow-sm h-100">
+              <div className="card-header bg-white">
+                <ul className="nav nav-tabs card-header-tabs">
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link ${selectedTab === "applicants" ? "active" : ""}`}
+                      onClick={() => setSelectedTab("applicants")}
+                    >
+                      Applicants
+                    </button>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link ${selectedTab === "bookings" ? "active" : ""}`}
+                      onClick={() => setSelectedTab("bookings")}
+                    >
+                      Bookings
+                    </button>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link ${selectedTab === "payments" ? "active" : ""}`}
+                      onClick={() => setSelectedTab("payments")}
+                    >
+                      Payments
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div className="card-body">
+                {selectedTab === "applicants" && (
+                  <div>
+                    <div className="input-group mb-3">
+                      <span className="input-group-text">
+                        <Search className="h-4 w-4" />
+                      </span>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Search applicants..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <div className="table-responsive">
+                      <table className="table table-hover">
+                        <thead className="table-light">
+                          <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredApplicants.map((a) => (
+                            <tr key={a.userId}>
+                              <td>{a.firstName + " " + a.lastName}</td>
+                              <td>{a.contact.email}</td>
+                              <td>{new Date(a.createdAt).toLocaleDateString()}</td>
+                              <td>
+                                <span className={`badge ${a.license ? "bg-success" : "bg-warning"}`}>
+                                  {a.license ? "Has License" : "No License"}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="btn-group">
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <Eye className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={() => console.log("Delete", a.userId)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+                {selectedTab === "bookings" && (
+                  <div>
+                    <h5 className="card-title mb-4">Bookings</h5>
+                    <div className="list-group">
+                      {bookingItems.map((booking, index) => (
+                        <div key={index} className="list-group-item list-group-item-action">
+                          <div className="d-flex w-100 justify-content-between">
+                            <div>
+                              <h6 className="mb-1 fw-bold">{booking.type}</h6>
+                              <p className="mb-1">Applicant: {booking.applicant}</p>
+                              {booking.date && <small className="text-muted">Date: {booking.date}</small>}
+                              {booking.submitted && <small className="text-muted d-block">Submitted: {booking.submitted}</small>}
+                              {booking.approved && <small className="text-muted">Approved: {booking.approved}</small>}
+                            </div>
+                            <div className="d-flex align-items-center">
+                              <span className={`badge me-2 ${
+                                booking.status === "approved" 
+                                  ? "bg-success" 
+                                  : booking.status === "submitted"
+                                  ? "bg-primary"
+                                  : "bg-warning"
+                              }`}>
+                                {booking.status}
+                              </span>
+                              <button className="btn btn-sm btn-outline-secondary">
+                                <MoreVertical className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {selectedTab === "payments" && (
+                  <div>
+                    <h5 className="card-title mb-4">Payments</h5>
+                    <p className="text-muted">Payment management interface will be implemented here.</p>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          </div>
+
+          {/* Right Panel - Additional Info */}
+          <div className="col-lg-4">
+            <div className="card shadow-sm h-100">
+              <div className="card-header bg-white">
+                <h5 className="card-title mb-0">Recent Activity</h5>
+              </div>
+              <div className="card-body">
+                <div className="list-group list-group-flush">
+                  <div className="list-group-item border-0 px-0">
+                    <div className="border-start border-primary ps-3">
+                      <h6 className="fw-bold mb-1">New applicant registered</h6>
+                      <p className="text-muted small mb-1">John Doe signed up for driving lessons</p>
+                      <small className="text-muted">2 hours ago</small>
+                    </div>
+                  </div>
+                  <div className="list-group-item border-0 px-0">
+                    <div className="border-start border-success ps-3">
+                      <h6 className="fw-bold mb-1">Payment received</h6>
+                      <p className="text-muted small mb-1">Jane Smith completed payment for learner's test</p>
+                      <small className="text-muted">5 hours ago</small>
+                    </div>
+                  </div>
+                  <div className="list-group-item border-0 px-0">
+                    <div className="border-start border-warning ps-3">
+                      <h6 className="fw-bold mb-1">Booking pending</h6>
+                      <p className="text-muted small mb-1">Mrs. Lickers needs schedule confirmation</p>
+                      <small className="text-muted">1 day ago</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

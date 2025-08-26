@@ -25,9 +25,14 @@ const handleLogin = async () => {
     const response = await ApiService.loginUser(email, password);
 
     // If login successful
-    alert(response); // response should be a string like "Login successful!"
+    alert(response || "Login successful!"); // response should be a string like "Login successful!"
 
-    onLogin({ ...response, isApplicant: true });
+    const loggedInUser = { ...response, isApplicant }; // include isApplicant flag
+
+    // ✅ UPDATED: send logged-in user to parent
+    onLogin(loggedInUser);
+
+
     if (isApplicant) navigate("/applicant");
     else navigate("/admin");
   } catch (err) {
