@@ -6,14 +6,18 @@ import SharedLayout from "../sharedPages/SharedLayout";
 function VehicleDisc() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { vehicle } = location.state || {};
+  const { vehicle, user } = location.state || {};
 
   if (!vehicle) return null;
 
-  const discIssueDate = vehicle.discIssueDate ? new Date(vehicle.discIssueDate) : new Date();
+  const discIssueDate = vehicle.discIssueDate
+    ? new Date(vehicle.discIssueDate)
+    : new Date();
   const discExpiryDate = vehicle.discExpiryDate
     ? new Date(vehicle.discExpiryDate)
-    : new Date(new Date(discIssueDate).setFullYear(discIssueDate.getFullYear() + 5));
+    : new Date(
+        new Date(discIssueDate).setFullYear(discIssueDate.getFullYear() + 5)
+      );
 
   // Function to download as PDF (using print functionality)
   const downloadAsPDF = () => {
@@ -60,7 +64,11 @@ function VehicleDisc() {
     justifyContent: "center",
   };
 
-  const rowStyle = { display: "flex", justifyContent: "space-between", marginBottom: "8px" };
+  const rowStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: "8px",
+  };
   const labelStyle = { fontWeight: "600", color: "#374151" };
   const valueStyle = { color: "#111827" };
 
@@ -68,7 +76,7 @@ function VehicleDisc() {
     display: "flex",
     justifyContent: "center",
     gap: "12px",
-    marginTop: "20px"
+    marginTop: "20px",
   };
 
   const buttonStyle = {
@@ -80,35 +88,56 @@ function VehicleDisc() {
     alignItems: "center",
     gap: "8px",
     fontSize: "14px",
-    fontWeight: "500"
+    fontWeight: "500",
   };
 
   return (
     <SharedLayout>
       <div style={overlayStyle}>
         <div style={cardStyle} className="vehicle-disc-card">
-          <X size={24} style={closeStyle} onClick={() => navigate(-1)} className="no-print" />
-          
+          <X
+            size={24}
+            style={closeStyle}
+            onClick={() => navigate(-1)}
+            className="no-print"
+          />
+
           <h3 style={headerStyle}>
             <CheckCircle size={24} color="#047857" /> Vehicle Disc
           </h3>
 
+          {user && (
+            <p
+              style={{
+                textAlign: "center",
+                marginBottom: "30px",
+                fontWeight: "1000",
+                color: "#302a2aff",
+                fontSize: "20px", 
+              }}
+            >
+              {user.firstName} {user.lastName} <br />
+                ID: {user.idNumber}
+            </p>
+          )}
+
           <div style={rowStyle}>
-            <span style={labelStyle}>Make:</span>
-            <span style={valueStyle}>{vehicle.make}</span>
+            <span style={labelStyle}>Vehicle Name:</span>
+            <span style={valueStyle}>{vehicle.vehicleName}</span>
           </div>
           <div style={rowStyle}>
             <span style={labelStyle}>Model:</span>
-            <span style={valueStyle}>{vehicle.model}</span>
+            <span style={valueStyle}>{vehicle.vehicleModel}</span>
           </div>
           <div style={rowStyle}>
             <span style={labelStyle}>Year:</span>
-            <span style={valueStyle}>{vehicle.year}</span>
+            <span style={valueStyle}>{vehicle.vehicleYear}</span>
           </div>
           <div style={rowStyle}>
             <span style={labelStyle}>Color:</span>
-            <span style={valueStyle}>{vehicle.color}</span>
+            <span style={valueStyle}>{vehicle.vehicleColor}</span>
           </div>
+
           <div style={rowStyle}>
             <span style={labelStyle}>Engine No:</span>
             <span style={valueStyle}>{vehicle.engineNumber}</span>
@@ -127,27 +156,35 @@ function VehicleDisc() {
           </div>
           <div style={rowStyle}>
             <span style={labelStyle}>Expiry Date:</span>
-            <span style={valueStyle}>{discExpiryDate.toLocaleDateString()}</span>
+            <span style={valueStyle}>
+              {discExpiryDate.toLocaleDateString()}
+            </span>
           </div>
-          
+
           {vehicle.registrationFee && (
             <div style={rowStyle}>
               <span style={labelStyle}>Registration Fee:</span>
               <span style={valueStyle}>R {vehicle.registrationFee}</span>
             </div>
           )}
-          
+
           <div style={rowStyle}>
             <span style={labelStyle}>Status:</span>
-            <span style={{...valueStyle, color: "#047857", fontWeight: "600"}}>
+            <span
+              style={{ ...valueStyle, color: "#047857", fontWeight: "600" }}
+            >
               {vehicle.status || "Registered"}
             </span>
           </div>
 
           <div style={buttonContainerStyle} className="no-print">
-            <button 
+            <button
               onClick={downloadAsPDF}
-              style={{...buttonStyle, backgroundColor: "#2563eb", color: "white"}}
+              style={{
+                ...buttonStyle,
+                backgroundColor: "#2563eb",
+                color: "white",
+              }}
             >
               <Download size={16} /> Download as PDF
             </button>

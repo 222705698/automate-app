@@ -41,11 +41,31 @@ export default function RegistrationStep1({ onNext }) {
   };
 
   const validateForm = () => {
-    const idRegex = /^[0-9]{13}$/;
-    if (!idRegex.test(formData.idNumber)) {
-      setError("ID Number must be exactly 13 digits.");
-      return false;
-    }
+   const idRegex = /^[0-9]{13}$/;
+  if (!idRegex.test(formData.idNumber)) {
+    setError("ID Number must be exactly 13 digits.");
+    return false;
+  }
+
+  // Extract birthdate from ID number
+  const idDobPart = formData.idNumber.substring(0, 6); // YYMMDD
+  const idYear = parseInt(idDobPart.substring(0, 2), 10);
+  const idMonth = parseInt(idDobPart.substring(2, 4), 10);
+  const idDay = parseInt(idDobPart.substring(4, 6), 10);
+
+  // Convert to full year (assume 19xx or 20xx)
+  const currentYear = new Date().getFullYear();
+  const fullYear = idYear + (idYear <= currentYear % 100 ? 2000 : 1900);
+
+  // Compare with selected DOB
+  if (
+    parseInt(formData.dobYear, 10) !== fullYear ||
+    parseInt(formData.dobMonth, 10) !== idMonth ||
+    parseInt(formData.dobDay, 10) !== idDay
+  ) {
+    setError("ID Number and Date of Birth do not match.");
+    return false;
+  }
 
     const password = formData.password.trim();
     const confirmPassword = formData.confirmPassword.trim();
