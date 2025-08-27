@@ -3,89 +3,92 @@ import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8080/capstone";
 
-
-
 class ApiService {
-  static API_BASE_URL = "http://localhost:8080/api/test-appointments";
-
-  // Create a new test appointment
-  static async createTestAppointment(appointmentData) {
+  // --- Fetch all data for admin dashboard ---
+  static async getAllData() {
     try {
-      const response = await axios.post(`${this.API_BASE_URL}/create`, appointmentData);
-      return response.data;
+      const [
+        admins,
+        applicants,
+        bookings,
+        payments,
+        testAppointments,
+        vehicleDiscs,
+        tickets,
+        registrations,
+      ] = await Promise.all([
+        axios.get(`${API_BASE_URL}/admins`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/applicants`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/bookings`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/payments`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/test-appointments`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/vehicle-discs`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/tickets`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/registrations`).then((res) => res.data),
+      ]);
+
+      return { admins, applicants, bookings, payments, testAppointments, vehicleDiscs, tickets, registrations };
     } catch (error) {
-      console.error("Booking creation error:", error.response || error.message);
+      console.error("Error fetching all data:", error.response || error.message);
       throw error;
     }
   }
-  // Register a new user
 
+  // --- Delete methods for Admin ---
+  static deleteApplicant(id) {
+    return axios.delete(`${API_BASE_URL}/applicants/${id}`);
+  }
+  static deleteBooking(id) {
+    return axios.delete(`${API_BASE_URL}/bookings/${id}`);
+  }
+  static deletePayment(id) {
+    return axios.delete(`${API_BASE_URL}/payments/${id}`);
+  }
+  static deleteTestAppointment(id) {
+    return axios.delete(`${API_BASE_URL}/test-appointments/${id}`);
+  }
+  static deleteVehicleDisc(id) {
+    return axios.delete(`${API_BASE_URL}/vehicle-discs/${id}`);
+  }
+  static deleteTicket(id) {
+    return axios.delete(`${API_BASE_URL}/tickets/${id}`);
+  }
 
-  // Register a new applicant
+  // --- Logout ---
+  static logout() {
+    localStorage.clear();
+  }
+
+  // --- Applicant Methods ---
   static async registerUser(userData) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/applicants/create`, userData);
-      return response.data;
-    } catch (error) {
-      console.error("Registration error:", error.response || error.message);
-      throw error;
-    }}
-  
+    const response = await axios.post(`${API_BASE_URL}/applicants/create`, userData);
+    return response.data;
+  }
 
-  // Login user
   static async loginUser(email, password) {
-    try {
-      // Call the backend to check login
-      const response = await axios.post(`${API_BASE_URL}/applicants/login`, {
-        contact: { email },  // match your backend Applicant object
-        password,            // user's password
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Login error:", error.response || error.message);
-      throw error;
-    }
+    const response = await axios.post(`${API_BASE_URL}/applicants/login`, { email, password });
+    return response.data;
   }
-   // Vehicle endpoints
+
   static async registerVehicle(vehicleData) {
-    try {
-      if (!vehicleData.applicant || !vehicleData.applicant.userId) {
-        throw new Error("User not logged in");
-      }
-      const response = await axios.post(`${API_BASE_URL}/vehicle/create`, vehicleData);
-      return response.data;
-    } catch (error) {
-      console.error("Vehicle registration error:", error.response || error.message);
-      throw error;
-    }
+    const response = await axios.post(`${API_BASE_URL}/vehicle/create`, vehicleData);
+    return response.data;
   }
 
-  // Vehicle Disc endpoints
   static async createVehicleDisc(discData) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/vehicledisc/create`, discData);
-      return response.data;
-    } catch (error) {
-      console.error("Vehicle Disc creation error:", error.response || error.message);
-      throw error;
-    }
+    const response = await axios.post(`${API_BASE_URL}/vehicledisc/create`, discData);
+    return response.data;
   }
 
-
-  // ...payment methods
   static async createPayment(paymentData) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/payment/create`, paymentData);
-      return response.data;
-    } catch (error) {
-      console.error("Payment creation error:", error.response || error.message);
-      throw error;
-    }
+    const response = await axios.post(`${API_BASE_URL}/payment/create`, paymentData);
+    return response.data;
+  }
+
+  static async createTestAppointment(appointmentData) {
+    const response = await axios.post(`${API_BASE_URL}/test-appointments/create`, appointmentData);
+    return response.data;
   }
 }
-
-
-
-
 
 export default ApiService;
