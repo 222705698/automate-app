@@ -27,9 +27,18 @@ export default function App() {
   const handleVehicleRegistered = (vehicle) => {
     setVehicles((prev) => [...prev, vehicle]);
   };
+ // Fixed handleLogin
   const handleLogin = (data) => {
-    setUser({ ...data, isApplicant: true , idNumber: data.idNumber  });
-    alert("Personal details saved: " + JSON.stringify(data));
+    if (!data) return;
+
+    // data should include isApplicant from LoginScreen
+    setUser({ ...data, isApplicant: data.isApplicant });
+
+    alert(
+      `Login successful! Welcome ${data.firstName} ${
+        data.lastName || ""
+      } (${data.isApplicant ? "Applicant" : "Admin"})`
+    );
   };
 
   const handleRegisterNext = (data) => {
@@ -99,7 +108,7 @@ export default function App() {
           }
         />
 
-        {/* Admin Dashboard */}
+       {/* Admin Dashboard */}
         <Route
           path="/admin"
           element={
@@ -110,10 +119,11 @@ export default function App() {
                 pendingApprovals={pendingApprovals}
               />
             ) : (
-              <LoginScreen onLogin={handleLogin} />
+              <Navigate to="/" replace />
             )
           }
         />
+       
       </Routes>
     </Router>
   );

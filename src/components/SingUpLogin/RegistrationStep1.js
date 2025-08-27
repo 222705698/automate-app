@@ -1,11 +1,14 @@
-import React, { useState } from "react";
-import { useNavigate , Link } from "react-router-dom";
-
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ApiService from "../../services/ApiService";
 
 export default function RegistrationStep1({ onNext }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get role from login page state or default to APPLICANT
+  const initialRole = location.state?.role || "APPLICANT";
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -22,7 +25,7 @@ export default function RegistrationStep1({ onNext }) {
     dobDay: "",
     password: "",
     confirmPassword: "",
-    role: "APPLICANT",
+    role: initialRole,
   });
 
   const [error, setError] = useState("");
@@ -41,31 +44,29 @@ export default function RegistrationStep1({ onNext }) {
   };
 
   const validateForm = () => {
-   const idRegex = /^[0-9]{13}$/;
-  if (!idRegex.test(formData.idNumber)) {
-    setError("ID Number must be exactly 13 digits.");
-    return false;
-  }
+    const idRegex = /^[0-9]{13}$/;
+    if (!idRegex.test(formData.idNumber)) {
+      setError("ID Number must be exactly 13 digits.");
+      return false;
+    }
 
-  // Extract birthdate from ID number
-  const idDobPart = formData.idNumber.substring(0, 6); // YYMMDD
-  const idYear = parseInt(idDobPart.substring(0, 2), 10);
-  const idMonth = parseInt(idDobPart.substring(2, 4), 10);
-  const idDay = parseInt(idDobPart.substring(4, 6), 10);
+    // Extract birthdate from ID number
+    const idDobPart = formData.idNumber.substring(0, 6); // YYMMDD
+    const idYear = parseInt(idDobPart.substring(0, 2), 10);
+    const idMonth = parseInt(idDobPart.substring(2, 4), 10);
+    const idDay = parseInt(idDobPart.substring(4, 6), 10);
 
-  // Convert to full year (assume 19xx or 20xx)
-  const currentYear = new Date().getFullYear();
-  const fullYear = idYear + (idYear <= currentYear % 100 ? 2000 : 1900);
+    const currentYear = new Date().getFullYear();
+    const fullYear = idYear + (idYear <= currentYear % 100 ? 2000 : 1900);
 
-  // Compare with selected DOB
-  if (
-    parseInt(formData.dobYear, 10) !== fullYear ||
-    parseInt(formData.dobMonth, 10) !== idMonth ||
-    parseInt(formData.dobDay, 10) !== idDay
-  ) {
-    setError("ID Number and Date of Birth do not match.");
-    return false;
-  }
+    if (
+      parseInt(formData.dobYear, 10) !== fullYear ||
+      parseInt(formData.dobMonth, 10) !== idMonth ||
+      parseInt(formData.dobDay, 10) !== idDay
+    ) {
+      setError("ID Number and Date of Birth do not match.");
+      return false;
+    }
 
     const password = formData.password.trim();
     const confirmPassword = formData.confirmPassword.trim();
@@ -96,12 +97,10 @@ export default function RegistrationStep1({ onNext }) {
       setError("Password must be at least 8 characters long.");
       return false;
     }
-
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return false;
     }
-
     if (
       formData.dobYear &&
       formData.dobMonth &&
@@ -148,7 +147,7 @@ export default function RegistrationStep1({ onNext }) {
       console.log("Registered successfully:", result);
       alert("Registration successful!");
       onNext(payload);
-      navigate("/applicant");
+      navigate("/");
     } catch (err) {
       console.error("Registration failed:", err);
       setError("Registration failed. Please try again.");
@@ -309,6 +308,17 @@ export default function RegistrationStep1({ onNext }) {
           </div>
         </div>
 
+        {/* Role (Read-only) */}
+        <div className="mb-3">
+          <label className="form-label">Role</label>
+          <input
+            type="text"
+            className="form-control"
+            value={formData.role}
+            readOnly
+          />
+        </div>
+
         {/* Password */}
         <div className="mb-3">
           <label className="form-label">Password</label>
@@ -331,38 +341,20 @@ export default function RegistrationStep1({ onNext }) {
           />
         </div>
 
-        {/* Remember Me & Forgot Password */}
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="form-check">
-            <input type="checkbox" className="form-check-input" id="remember" />
-            <label htmlFor="remember" className="form-check-label">
-              Remember me
-            </label>
-          </div>
-          <button
-            type="button"
-            className="btn btn-link p-0 text-primary"
-            onClick={() => alert("Forgot password clicked")}
-          >
-            Forgot Password?
-          </button>
-        </div>
-
         {/* Submit Button */}
         <button className="btn btn-primary w-100" onClick={handleSubmit}>
           Register
         </button>
 
-        {/* Sign in link */}
         <div className="text-center mt-3 text-muted">
-  Already have an account?{" "}
-  <span
-    style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
-    onClick={() => navigate("/")} // <-- change "/signin" to your actual sign-in route
-  >
-    Sign in
-  </span>
-</div>
+          Already have an account?{" "}
+          <span
+            style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+            onClick={() => navigate("/")}
+          >
+            Sign in
+          </span>
+        </div>
       </div>
     </div>
   );

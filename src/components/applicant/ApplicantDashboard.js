@@ -263,25 +263,22 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
               </div>
               <div className="card-body p-4">
                 {vehicles && vehicles.length > 0 ? (
-                  <ul className="list-group list-group-flush">
-                    {vehicles.map((vehicle, index) => (
-                      <li key={index} className="list-group-item py-3">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <span className="fw-medium fs-6">
-                            {vehicle.vehicleName} {vehicle.vehicleColor}
-                          </span>
-                          <span className="text-muted">
-                            {vehicle.licensePlate}
-                          </span>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-muted text-center my-4 fs-5">
-                    No vehicles registered
-                  </p>
-                )}
+  <ul className="list-group list-group-flush">
+    {vehicles.map((vehicle, index) => (
+      <li key={index} className="list-group-item py-3">
+        <div className="d-flex justify-content-between align-items-center">
+          <span className="fw-medium fs-6">
+            {index + 1}. {vehicle.vehicleName} ({vehicle.vehicleType}) - {vehicle.vehicleColor}
+          </span>
+          <span className="text-muted">{vehicle.licensePlate}</span>
+        </div>
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>No vehicles registered yet.</p>
+)}
+
               </div>
             </div>
           </div>
