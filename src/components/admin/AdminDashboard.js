@@ -9,7 +9,10 @@ import {
   XCircle,
   Eye,
   Trash2,
+<<<<<<< HEAD
   Search,
+=======
+>>>>>>> 6cca83e6ec782559252313377212c34d3f7100ad
   Ticket,
   ClipboardList,
   LogOut,
@@ -86,11 +89,39 @@ export default function AdminDashboard() {
 
   const stats = [
     { title: "TOTAL APPLICANTS", value: data.applicants.length, icon: Users, color: "bg-primary" },
+<<<<<<< HEAD
     { title: "TOTAL REVENUE", value: `R ${data.payments.reduce((sum, p) => sum + (p.paymentAmount || 0), 0).toLocaleString()}`, icon: DollarSign, color: "bg-success" },
     { title: "PENDING BOOKINGS", value: data.bookings.filter((b) => b.status === "PENDING").length, icon: Calendar, color: "bg-warning" },
     { title: "COMPLETED PAYMENTS", value: data.payments.filter((p) => p.status === "COMPLETED").length, icon: FileText, color: "bg-info" },
     { title: "TEST APPOINTMENTS", value: data.testAppointments.length, icon: ClipboardList, color: "bg-secondary" },
     { title: "ACTIVE TICKETS", value: data.tickets.filter((t) => t.status === "ACTIVE").length, icon: Ticket, color: "bg-danger" },
+=======
+    {
+      title: "TOTAL REVENUE",
+      value: `R ${data.payments.reduce((sum, p) => sum + (p.paymentAmount || 0), 0).toLocaleString()}`,
+      icon: DollarSign,
+      color: "bg-success",
+    },
+    {
+      title: "PENDING BOOKINGS",
+      value: data.bookings.filter((b) => b.status === "PENDING").length,
+      icon: Calendar,
+      color: "bg-warning",
+    },
+    {
+      title: "COMPLETED PAYMENTS",
+      value: data.payments.filter((p) => p.status === "COMPLETED").length,
+      icon: FileText,
+      color: "bg-info",
+    },
+    { title: "TEST APPOINTMENTS", value: data.testAppointments.length, icon: ClipboardList, color: "bg-secondary" },
+    {
+      title: "ACTIVE TICKETS",
+      value: data.tickets.filter((t) => t.status === "ACTIVE").length,
+      icon: Ticket,
+      color: "bg-danger",
+    },
+>>>>>>> 6cca83e6ec782559252313377212c34d3f7100ad
   ];
 
   const filteredApplicants = data.applicants.filter(
@@ -137,7 +168,14 @@ export default function AdminDashboard() {
                 <td>
                   <div className="btn-group">
                     <button className="btn btn-sm btn-outline-primary"><Eye size={16} /></button>
+<<<<<<< HEAD
                     <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete("applicant", a.id || a.userId)}>
+=======
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() => handleDelete("applicant", a.id || a.userId)}
+                    >
+>>>>>>> 6cca83e6ec782559252313377212c34d3f7100ad
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -195,9 +233,22 @@ export default function AdminDashboard() {
                     <td>{b.bookingId}</td>
                     <td>{b.booktype}</td>
                     <td>{new Date(b.bookingDate).toLocaleDateString()}</td>
+<<<<<<< HEAD
                     <td><span className={`badge ${b.status === "CONFIRMED" ? "bg-success" : "bg-warning"}`}>{b.status || "PENDING"}</span></td>
                     <td>
                       <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete("booking", b.bookingId)}>
+=======
+                    <td>
+                      <span className={`badge ${b.status === "CONFIRMED" ? "bg-success" : "bg-warning"}`}>
+                        {b.status || "PENDING"}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => handleDelete("booking", b.bookingId)}
+                      >
+>>>>>>> 6cca83e6ec782559252313377212c34d3f7100ad
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
@@ -220,7 +271,14 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-800 to-green-600 text-gray-900 p-3">
       {/* Top Bar */}
+<<<<<<< HEAD
       <div className="d-flex justify-content-between align-items-center p-2 mb-3 rounded" style={{ background: "linear-gradient(to right, #002395, #ffb612, #007847)" }}>
+=======
+      <div
+        className="d-flex justify-content-between align-items-center p-2 mb-3 rounded"
+        style={{ background: "linear-gradient(to right, #002395, #ffb612, #007847)" }}
+      >
+>>>>>>> 6cca83e6ec782559252313377212c34d3f7100ad
         <h4 className="text-white mb-0">{adminFullName}</h4>
         <button className="btn btn-light btn-sm d-flex align-items-center" onClick={handleLogout}>
           <LogOut className="h-4 w-4 me-1" /> Logout
@@ -257,7 +315,14 @@ export default function AdminDashboard() {
               <ul className="nav nav-tabs card-header-tabs flex-wrap">
                 {["applicants", "bookings", "payments", "testAppointments", "vehicleDiscs", "tickets"].map((tab) => (
                   <li key={tab} className="nav-item">
+<<<<<<< HEAD
                     <button className={`nav-link ${selectedTab === tab ? "active" : ""}`} onClick={() => setSelectedTab(tab)}>
+=======
+                    <button
+                      className={`nav-link ${selectedTab === tab ? "active" : ""}`}
+                      onClick={() => setSelectedTab(tab)}
+                    >
+>>>>>>> 6cca83e6ec782559252313377212c34d3f7100ad
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
                     </button>
                   </li>

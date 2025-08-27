@@ -15,60 +15,56 @@ export default function LoginScreen({ onLogin }) {
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Please enter email and password.");
-      return;
+const handleLogin = async () => {
+  if (!email || !password) {
+    setError("Please enter email and password.");
+    return;
+  }
+
+  try {
+    let response;
+
+    // Call the appropriate API based on user type
+    if (isApplicant) {
+      response = await ApiService.loginUser(email, password);
+    } else {
+      response = await ApiService.loginAdmin(email, password);
     }
 
-    try {
-      // Call API service
-      const response = await ApiService.loginUser(email, password);
-      
-      // Extract user data from response (adjust according to your API response structure)
-      const user = response.user || response;
-      
-      // Check if firstName exists in the response
-      if (user && user.firstName) {
-        // Show personalized welcome message
-        alert(`Welcome ${user.firstName}!`);
-        
-        // Store user data in state
-        setUserData(user);
-        
-        // Pass user data to onLogin callback
-        onLogin({ ...user, isApplicant });
-        
-        // Navigate based on user type
-        if (isApplicant) {
-          navigate("/applicant");
-        } else {
-          navigate("/admin");
-        }
+    // Extract user data from response
+    // Backend returns object with firstName, lastName, userId, etc.
+    const user = response || {};
+
+    if (user.firstName) {
+      // Show welcome alert
+      alert(`Welcome ${user.firstName}!`);
+
+      // Save user data in state
+      setUserData(user);
+
+      // Pass user data and role to parent App.js
+      onLogin({ ...user, isApplicant });
+
+      // Navigate based on role
+      if (isApplicant) {
+        navigate("/applicant");
       } else {
-        // Handle case where firstName is not in response
-        alert("Welcome!");
-        onLogin({ email, isApplicant });
-        if (isApplicant) navigate("/applicant");
-        else navigate("/admin");
+        navigate("/admin");
       }
-    } catch (err) {
-      // Extract message safely
-      if (err.response && err.response.data) {
-        // If your backend sends a string message
-        if (typeof err.response.data === "string") {
-          setError(err.response.data);
-        } else if (err.response.data.error) {
-          // If your backend sends an object with `error` key
-          setError(err.response.data.error);
-        } else {
-          setError("Login failed. Please try again.");
-        }
-      } else {
-        setError("Login failed. Please try again.");
-      }
+    } else {
+      setError("Login failed: No user data returned.");
     }
-  };
+  } catch (err) {
+    // Better error handling
+    const message =
+      err.response?.data ||
+      err.message ||
+      "Login failed. Please try again.";
+    setError(message);
+  }
+};
+
+
 
   return (
     <div style={styles.background}>
@@ -77,7 +73,9 @@ export default function LoginScreen({ onLogin }) {
         <div style={styles.card}>
           <h1 style={styles.title}>Sign in to AutoMate</h1>
 
-          {error && <div style={{ color: "red", marginBottom: "16px" }}>{error}</div>}
+          {error && (
+            <div style={{ color: "red", marginBottom: "16px" }}>{error}</div>
+          )}
 
           {/* User Type Dropdown */}
           <div style={styles.dropdownContainer}>
@@ -190,14 +188,26 @@ export default function LoginScreen({ onLogin }) {
           {/* Sign Up Prompt */}
           <p style={styles.signUpText}>
             New to AutoMate?{" "}
-            <Link to="/register" style={styles.signUpLink}>
+            <span
+              style={{
+                cursor: "pointer",
+                color: "blue",
+                textDecoration: "underline",
+              }}
+              onClick={() =>
+                navigate("/register", {
+                  state: { role: isApplicant ? "APPLICANT" : "ADMIN" },
+                })
+              }
+            >
               Create account
-            </Link>
+            </span>
           </p>
 
           {/* Security Note */}
           <p style={styles.securityNote}>
-            If you use two-step authentication, keep your backup codes in a secure place.
+            If you use two-step authentication, keep your backup codes in a
+            secure place.
           </p>
         </div>
       </div>
