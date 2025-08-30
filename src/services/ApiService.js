@@ -4,6 +4,30 @@ import axios from "axios";
 const API_BASE_URL = "http://localhost:8080/capstone";
 
 class ApiService {
+  // --- Fetch all data for admin dashboard ---
+  static async getAllData() {
+    try {
+      const [
+        admins,
+        applicants,
+        bookings,
+        payments,
+        testAppointments,
+        vehicleDiscs,
+        tickets,
+        registrations,
+      ] = await Promise.all([
+        axios.get(`${API_BASE_URL}/admins`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/applicants`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/bookings`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/payments`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/test-appointments`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/vehicle-discs`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/tickets`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/registrations`).then((res) => res.data),
+      ]);
+
+      return { admins, applicants, bookings, payments, testAppointments, vehicleDiscs, tickets, registrations };
 //  static API_BASE_URL = "http://localhost:8080/api/test-appointments";
 
   // Create a new test appointment
@@ -15,10 +39,42 @@ class ApiService {
       );
       return response.data;
     } catch (error) {
-      console.error("Booking creation error:", error.response || error.message);
+      console.error("Error fetching all data:", error.response || error.message);
       throw error;
     }
   }
+
+  // --- Delete methods for Admin ---
+  static deleteApplicant(id) {
+    return axios.delete(`${API_BASE_URL}/applicants/${id}`);
+  }
+  static deleteBooking(id) {
+    return axios.delete(`${API_BASE_URL}/bookings/${id}`);
+  }
+  static deletePayment(id) {
+    return axios.delete(`${API_BASE_URL}/payments/${id}`);
+  }
+  static deleteTestAppointment(id) {
+    return axios.delete(`${API_BASE_URL}/test-appointments/${id}`);
+  }
+  static deleteVehicleDisc(id) {
+    return axios.delete(`${API_BASE_URL}/vehicle-discs/${id}`);
+  }
+  static deleteTicket(id) {
+    return axios.delete(`${API_BASE_URL}/tickets/${id}`);
+  }
+
+  // --- Logout ---
+  static logout() {
+    localStorage.clear();
+  }
+
+  // --- Applicant Methods ---
+  static async registerUser(userData) {
+    const response = await axios.post(`${API_BASE_URL}/applicants/create`, userData);
+    return response.data;
+  }
+
   // Register a new user
 
   // Register a new applicant
@@ -39,6 +95,8 @@ static async registerUser(userData) {
 
   // Login user
   static async loginUser(email, password) {
+    const response = await axios.post(`${API_BASE_URL}/applicants/login`, { email, password });
+    return response.data;
     try {
       // Call the backend to check login
       const response = await axios.post(`${API_BASE_URL}/applicants/login`, {
@@ -65,6 +123,7 @@ static async registerUser(userData) {
     }
   }
 
+
   // Vehicle endpoints
   static async registerVehicle(vehicleData) {
     try {
@@ -85,7 +144,6 @@ static async registerUser(userData) {
     }
   }
 
-  // Vehicle Disc endpoints
   static async createVehicleDisc(discData) {
     try {
       const response = await axios.post(
