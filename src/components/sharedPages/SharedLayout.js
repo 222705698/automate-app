@@ -55,7 +55,7 @@ const SharedLayout = ({ children }) => {
               <div style={styles.navLink}>Profile</div>
               {showProfileDropdown && (
                 <div style={styles.dropdownMenu}>
-                  <Link to="/profile/license" style={styles.dropdownItem}>License</Link>
+                  <Link to="/profile" style={styles.dropdownItem}>My Information</Link>
                   <Link to="/profile/tickets" style={styles.dropdownItem}>Tickets</Link>
                   <Link to="/profile/payments" style={styles.dropdownItem}>Payments</Link>
                   <Link to="/" style={styles.dropdownItem}>Log out</Link>
