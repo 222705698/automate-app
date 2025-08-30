@@ -18,7 +18,7 @@ function VehicleRegistration({ user, onClose, onComplete }) {
     engineNumber: "",
     chassisNumber: "",
     licensePlate: "",
-    paymentType: "VEHICLEDISC",
+    paymentType: "Disc",
     paymentMethod: "",
     paymentAmount: 850,
     paymentDate: "",
@@ -122,7 +122,7 @@ function VehicleRegistration({ user, onClose, onComplete }) {
           status: "active",
         },
         payment: {
-          paymentType: "VEHICLEDISC",
+          paymentType: "Disc",
           paymentMethod: formData.paymentMethod,
           paymentAmount: Number(registrationFee),
           paymentDate: formData.paymentDate,
@@ -376,11 +376,11 @@ function VehicleRegistration({ user, onClose, onComplete }) {
                       <label>Payment Type</label>
                       <select
                         name="paymentType"
-                        value="VEHICLEREGISTRATION" // fixed value
+                        value="Disc" // fixed value
                         readOnly // prevents changing
                         style={inputStyle}
                       >
-                        <option value="VEHICLEREGISTRATION">
+                        <option value="Disc">
                           VEHICLE REGISTRATION
                         </option>
                       </select>
