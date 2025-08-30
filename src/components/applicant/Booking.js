@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SharedLayout from "../sharedPages/SharedLayout";
 import ApiService from "../../services/ApiService";
-import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+
+
 
 const Booking = () => {
   const navigate = useNavigate();
@@ -174,7 +176,7 @@ const Booking = () => {
         testype: currentTest.testType,
         testAmount: currentTest.fee,
         payment: paymentRequestData,
-        applicant: { applicantId: userData.userId }, // ✅ safe applicant
+        applicant: { userId: userData.userId }, // ✅ safe applicant
       };
 
       console.log("Sending appointment with payment:", appointmentData);
