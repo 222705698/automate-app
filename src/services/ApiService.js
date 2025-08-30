@@ -3,23 +3,21 @@ import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8080/capstone";
 
-
-
 class ApiService {
-  static API_BASE_URL = "http://localhost:8080/api/test-appointments";
-
-  // Create a new test appointment
-  static async createTestAppointment(appointmentData) {
-    try {
-      const response = await axios.post(`${this.API_BASE_URL}/create`, appointmentData);
-      return response.data;
-    } catch (error) {
-      console.error("Booking creation error:", error.response || error.message);
-      throw error;
-    }
+  // Create a new test appointment - FIXED METHOD NAME
+static async createTestAppointment(appointmentData) {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/test-appointments/create`, 
+      appointmentData
+    );
+    console.log("Appointment created successfully:", response.data);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Booking creation error:", error.response?.data || error.message);
+    return { success: false, error: error.response?.data || error.message };
   }
-  // Register a new user
-
+}
 
   // Register a new applicant
   static async registerUser(userData) {
@@ -29,8 +27,8 @@ class ApiService {
     } catch (error) {
       console.error("Registration error:", error.response || error.message);
       throw error;
-    }}
-  
+    }
+  }
 
   // Login user
   static async loginUser(email, password) {
@@ -46,7 +44,8 @@ class ApiService {
       throw error;
     }
   }
-   // Vehicle endpoints
+
+  // Vehicle endpoints
   static async registerVehicle(vehicleData) {
     try {
       if (!vehicleData.applicant || !vehicleData.applicant.userId) {
@@ -71,21 +70,19 @@ class ApiService {
     }
   }
 
-
-  // ...payment methods
-  static async createPayment(paymentData) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/payment/create`, paymentData);
-      return response.data;
-    } catch (error) {
-      console.error("Payment creation error:", error.response || error.message);
-      throw error;
-    }
+  // Payment method
+static async createPayment(paymentData) {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/payments/create`,  // Note the 's' in payments
+      paymentData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Payment creation error:", error.response?.data || error.message);
+    throw error;
   }
 }
-
-
-
-
+}
 
 export default ApiService;

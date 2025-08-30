@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import LoginScreen from "./components/SingUpLogin/LoginScreen";
 import RegistrationStep1 from "./components/SingUpLogin/RegistrationStep1";
@@ -20,7 +15,6 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [payments, setPayments] = useState(0);
-
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [vehicles, setVehicles] = useState([]);
 
@@ -44,39 +38,25 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* First page: Login */}
         <Route path="/" element={<LoginScreen onLogin={handleLogin} />} />
-        <Route
-          path="/register"
-          element={<RegistrationStep1 onNext={handleRegisterNext} />}
-        />
+        <Route path="/register" element={<RegistrationStep1 onNext={handleRegisterNext} />} />
 
-        {/* Applicant Dashboard */}
         <Route
           path="/applicant"
           element={
             user && user.isApplicant ? (
-              <ApplicantDashboard
-                userData={user}
-                bookings={bookings}
-                vehicles={vehicles}
-              />
+              <ApplicantDashboard userData={user} bookings={bookings} vehicles={vehicles} />
             ) : (
               <LoginScreen onLogin={handleLogin} />
             )
           }
         />
 
-        {/* vehicle disc */}
-        {/* <Route path="/VehicleRegistration" element={<VehicleRegistration user={user} onComplete={handleVehicleRegistered} />} /> */}
         <Route
           path="/VehicleRegistration"
           element={
             user && user.isApplicant ? (
-              <VehicleRegistration
-                user={user}
-                onComplete={handleVehicleRegistered}
-              />
+              <VehicleRegistration user={user} onComplete={handleVehicleRegistered} />
             ) : (
               <Navigate to="/" replace />
             )
@@ -87,7 +67,7 @@ export default function App() {
         <Route path="/pay-ticket" element={<PayTrafficTicket />} />
         <Route path="/booking-details/:id" element={<BookingDetails />} />
 
-        {/* Booking routes */}
+        {/* ✅ Booking route saves to backend now */}
         <Route
           path="/booking"
           element={
@@ -99,16 +79,11 @@ export default function App() {
           }
         />
 
-        {/* Admin Dashboard */}
         <Route
           path="/admin"
           element={
             user && !user.isApplicant ? (
-              <AdminDashboard
-                bookings={bookings}
-                payments={payments}
-                pendingApprovals={pendingApprovals}
-              />
+              <AdminDashboard bookings={bookings} payments={payments} pendingApprovals={pendingApprovals} />
             ) : (
               <LoginScreen onLogin={handleLogin} />
             )

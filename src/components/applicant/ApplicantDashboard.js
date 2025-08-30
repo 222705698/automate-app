@@ -1,22 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SharedLayout from "../sharedPages/SharedLayout";
-import Booking from ".././applicant/Booking";
-import BookingDetails from ".././applicant/BookingDetails";
-import Login from "../SingUpLogin/LoginScreen";
-import VehicleRegistration from "../applicant/VehicleRegistration";
 
 export default function ApplicantDashboard({ userData, bookings, vehicles }) {
   const navigate = useNavigate();
   const [hasLicense, setHasLicense] = useState(null);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [licenseType, setLicenseType] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
+  const [licenseNumber, setLicenseNumber] = useState("");  
   const [userLicenseInfo, setUserLicenseInfo] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [myVehicles, setMyVehicles] = useState(vehicles || []);
   const [user, setUser] = useState(null); // store logged-in applicant
+
+  // Add redirect effect if no user data
+  useEffect(() => {
+    if (!userData || !userData.userId) {
+      navigate('/login');
+    }
+  }, [userData, navigate]);
 
   const handleLicenseSelection = (type) => {
     setLicenseType(type);
@@ -29,10 +32,7 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
     setShowLicenseModal(false);
     setLicenseNumber("");
   };
-  // When a vehicle is registered successfully, update the dashboard list
-  //  const handleVehicleRegistered = (vehicle) => {
-  // setMyVehicles((prev) => [...prev, vehicle]);
-  //};
+
   // ✅ UPDATED: Callback after vehicle registration
   const handleVehicleRegistered = (vehicleData) => {
     console.log("Vehicle registered:", vehicleData);
@@ -45,17 +45,16 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
       title: "Book Learners Test",
       description: "Schedule your learners license test",
       icon: "📝",
-      action: () => navigate("/booking?type=learners"),
+      action: () => navigate("/booking?type=learners", { state: { userData } }),
       requires: null,
     },
     {
       title: "Book Drivers Test",
       description: "Schedule your drivers license test",
       icon: "🚗",
-      action: () => navigate("/booking?type=drivers"),
+      action: () => navigate("/booking?type=drivers", { state: { userData } }),
       requires: "learners",
     },
-
     {
       title: "Register Vehicle",
       description: "Register your vehicle and get disc",
@@ -106,8 +105,6 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
             services
           </p>
         </div>
-
-     
 
         {/* Space between welcome and question */}
         <div className="mb-4"></div>
