@@ -6,7 +6,7 @@ const API_BASE_URL = "http://localhost:8080/capstone";
 class ApiService {
   // --- Fetch all data for admin dashboard ---
   static async getAllData() {
-    try {
+    // try {
       const [
         admins,
         applicants,
@@ -29,7 +29,7 @@ class ApiService {
 
       return { admins, applicants, bookings, payments, testAppointments, vehicleDiscs, tickets, registrations };
 //  static API_BASE_URL = "http://localhost:8080/api/test-appointments";
-
+     }
   // Create a new test appointment
   static async createTestAppointment(appointmentData) {
     try {
@@ -69,11 +69,11 @@ class ApiService {
     localStorage.clear();
   }
 
-  // --- Applicant Methods ---
-  static async registerUser(userData) {
-    const response = await axios.post(`${API_BASE_URL}/applicants/create`, userData);
-    return response.data;
-  }
+  // // --- Applicant Methods ---
+  // static async registerUser(userData) {
+  //   const response = await axios.post(`${API_BASE_URL}/applicants/create`, userData);
+  //   return response.data;
+  // }
 
   // Register a new user
 
@@ -94,9 +94,8 @@ static async registerUser(userData) {
 }
 
   // Login user
+    // Login user
   static async loginUser(email, password) {
-    const response = await axios.post(`${API_BASE_URL}/applicants/login`, { email, password });
-    return response.data;
     try {
       // Call the backend to check login
       const response = await axios.post(`${API_BASE_URL}/applicants/login`, {
@@ -109,7 +108,6 @@ static async registerUser(userData) {
       throw error;
     }
   }
-
   static async loginAdmin(email, password) {
     try {
       const response = await axios.post(`${API_BASE_URL}/admins/login`, {
