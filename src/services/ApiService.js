@@ -1,27 +1,27 @@
-import axios from "axios"; 
+import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8080/capstone";
 
 class ApiService {
-  // ------------------ TEST APPOINTMENTS ------------------
+  // Create Test Appointment
   static async createTestAppointment(appointmentData) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/create`, appointmentData);
-      return response.data;
+      const response = await axios.post(
+        `${API_BASE_URL}/test-appointments/create`,
+        appointmentData
+      );
+      console.log("Appointment created successfully:", response.data);
+      return { success: true, data: response.data };
     } catch (error) {
-      console.error("Booking creation error:", error.response || error.message);
-      throw error;
+      console.error("Booking creation error:", error.response?.data || error.message);
+      return { success: false, error: error.response?.data || error.message };
     }
   }
 
-  // ------------------ USERS ------------------
+  // Register a new applicant
   static async registerUser(userData) {
     try {
-      const url =
-        userData.role === "ADMIN"
-          ? `${API_BASE_URL}/admins/create`
-          : `${API_BASE_URL}/applicants/create`;
-      const response = await axios.post(url, userData);
+      const response = await axios.post(`${API_BASE_URL}/applicants/create`, userData);
       return response.data;
     } catch (error) {
       console.error("Registration error:", error.response || error.message);
@@ -29,6 +29,7 @@ class ApiService {
     }
   }
 
+  // Login user
   static async loginUser(email, password) {
     try {
       const response = await axios.post(`${API_BASE_URL}/applicants/login`, {
@@ -42,20 +43,7 @@ class ApiService {
     }
   }
 
-  static async loginAdmin(email, password) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/admins/login`, {
-        contact: { email },
-        password,
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Login error:", error.response || error.message);
-      throw error;
-    }
-  }
-
-  // ------------------ VEHICLES ------------------
+  // Vehicle endpoints
   static async registerVehicle(vehicleData) {
     try {
       if (!vehicleData.applicant || !vehicleData.applicant.userId) {
@@ -79,13 +67,13 @@ class ApiService {
     }
   }
 
-  // ------------------ PAYMENTS ------------------
+  // Payment method
   static async createPayment(paymentData) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/payment/create`, paymentData);
+      const response = await axios.post(`${API_BASE_URL}/payments/create`, paymentData);
       return response.data;
     } catch (error) {
-      console.error("Payment creation error:", error.response || error.message);
+      console.error("Payment creation error:", error.response?.data || error.message);
       throw error;
     }
   }
