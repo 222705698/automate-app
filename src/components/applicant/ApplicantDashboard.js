@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SharedLayout from "../sharedPages/SharedLayout";
+import ApiService from "../../services/ApiService"; // Import your API service
 
-export default function ApplicantDashboard({ userData, bookings, vehicles }) {
+export default function ApplicantDashboard({ userData, vehicles }) {
   const navigate = useNavigate();
   const [hasLicense, setHasLicense] = useState(null);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
@@ -12,7 +13,9 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
   const [userLicenseInfo, setUserLicenseInfo] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [myVehicles, setMyVehicles] = useState(vehicles || []);
-  const [user, setUser] = useState(null); // store logged-in applicant
+  const [user, setUser] = useState(null);
+  const [userBookings, setUserBookings] = useState([]); // State for user-specific bookings
+  const [loadingBookings, setLoadingBookings] = useState(true);
 
   // Add redirect effect if no user data
   useEffect(() => {
@@ -20,6 +23,31 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
       navigate('/login');
     }
   }, [userData, navigate]);
+
+  // Fetch user-specific bookings
+  useEffect(() => {
+    const fetchUserBookings = async () => {
+      if (userData && userData.userId) {
+        try {
+          setLoadingBookings(true);
+          // Call your API to get bookings for this specific user
+          const response = await ApiService.getUserBookings(userData.userId);
+          
+          if (response.success) {
+            setUserBookings(response.data);
+          } else {
+            console.error("Failed to fetch user bookings:", response.error);
+          }
+        } catch (error) {
+          console.error("Error fetching user bookings:", error);
+        } finally {
+          setLoadingBookings(false);
+        }
+      }
+    };
+
+    fetchUserBookings();
+  }, [userData]);
 
   const handleLicenseSelection = (type) => {
     setLicenseType(type);
@@ -31,12 +59,6 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
     setHasLicense(licenseType);
     setShowLicenseModal(false);
     setLicenseNumber("");
-  };
-
-  // ✅ UPDATED: Callback after vehicle registration
-  const handleVehicleRegistered = (vehicleData) => {
-    console.log("Vehicle registered:", vehicleData);
-    // You can update parent state or show a message here
   };
 
   // Service cards data
@@ -60,21 +82,21 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
       description: "Register your vehicle and get disc",
       icon: "📋",
       action: () => navigate("/VehicleRegistration"),
-      requires: null, // Available to everyone
+      requires: null,
     },
     {
       title: "Renew Vehicle Disc",
       description: "Renew your vehicle disc",
       icon: "🔄",
       action: () => navigate("/renew-disc"),
-      requires: null, // Available to everyone
+      requires: null,
     },
     {
       title: "Pay Traffic Ticket",
       description: "Pay outstanding traffic fines",
       icon: "💰",
       action: () => navigate("/pay-ticket"),
-      requires: null, // Available to everyone
+      requires: null,
     },
   ];
 
@@ -82,6 +104,18 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
   const canAccessService = (service) => {
     if (!service.requires) return true;
     return userLicenseInfo && userLicenseInfo.type === service.requires;
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Format time for display
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    return timeString.substring(0, 5); // Display HH:MM format
   };
 
   return (
@@ -226,13 +260,34 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
                 <h4 className="mb-0">Recent Bookings</h4>
               </div>
               <div className="card-body p-4">
-                {bookings && bookings.length > 0 ? (
+                {loadingBookings ? (
+                  <div className="text-center">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-2">Loading bookings...</p>
+                  </div>
+                ) : userBookings && userBookings.length > 0 ? (
                   <ul className="list-group list-group-flush">
-                    {bookings.map((booking, index) => (
+                    {userBookings.map((booking, index) => (
                       <li key={index} className="list-group-item py-3">
                         <div className="d-flex justify-content-between align-items-center">
-                          <span className="fw-medium fs-6">{booking.type}</span>
-                          <span className="text-muted">{booking.date}</span>
+                          <span className="fw-medium fs-6">
+                            {booking.testType === "LEARNERSLICENSETEST" 
+                              ? "Learner's Test" 
+                              : "Driver's Test"}
+                          </span>
+                          <div className="text-end">
+                            <div className="text-muted small">
+                              {formatDate(booking.testDate)}
+                            </div>
+                            <div className="text-muted small">
+                              {formatTime(booking.testTime)}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-2 small text-muted">
+                          Venue: {booking.testVenue}
                         </div>
                       </li>
                     ))}
@@ -260,22 +315,21 @@ export default function ApplicantDashboard({ userData, bookings, vehicles }) {
               </div>
               <div className="card-body p-4">
                 {vehicles && vehicles.length > 0 ? (
-  <ul className="list-group list-group-flush">
-    {vehicles.map((vehicle, index) => (
-      <li key={index} className="list-group-item py-3">
-        <div className="d-flex justify-content-between align-items-center">
-          <span className="fw-medium fs-6">
-            {index + 1}. {vehicle.vehicleName} ({vehicle.vehicleType}) - {vehicle.vehicleColor}
-          </span>
-          <span className="text-muted">{vehicle.licensePlate}</span>
-        </div>
-      </li>
-    ))}
-  </ul>
-) : (
-  <p>No vehicles registered yet.</p>
-)}
-
+                  <ul className="list-group list-group-flush">
+                    {vehicles.map((vehicle, index) => (
+                      <li key={index} className="list-group-item py-3">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span className="fw-medium fs-6">
+                            {index + 1}. {vehicle.vehicleName} ({vehicle.vehicleType}) - {vehicle.vehicleColor}
+                          </span>
+                          <span className="text-muted">{vehicle.licensePlate}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No vehicles registered yet.</p>
+                )}
               </div>
             </div>
           </div>

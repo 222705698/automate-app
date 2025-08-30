@@ -200,6 +200,17 @@ class ApiService {
       throw error;
     }
   }
+  static async getUserBookings(userId) {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/test-appointments/by-applicant/${userId}`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error fetching user bookings:", error.response?.data || error.message);
+    return { success: false, error: error.response?.data || error.message };
+  }
 }
+  
+}
+
 
 export default ApiService;

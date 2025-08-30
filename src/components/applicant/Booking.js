@@ -4,8 +4,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import SharedLayout from "../sharedPages/SharedLayout";
 import ApiService from "../../services/ApiService";
 
-
-
 const Booking = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -70,22 +68,37 @@ const Booking = () => {
   // Add redirect effect if no user data
   useEffect(() => {
     if (!userData || !userData.userId) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [userData, navigate]);
 
   const testVenues = [
-    { name: "Cape Town Testing Center", address: "123 Main Street, Cape Town" },
-    { name: "Johannesburg Testing Center", address: "456 Oak Avenue, Johannesburg" },
-    { name: "Durban Testing Center", address: "789 Beach Road, Durban" },
-    { name: "Port Elizabeth Testing Center", address: "Broadwalk Road, Gqeberha" },
+    {
+      name: "Cape Town Testing Center",
+      address: "123 Main Street, Cape Town",
+    },
+    {
+      name: "Johannesburg Testing Center",
+      address: "456 Oak Avenue, Johannesburg",
+    },
+    {
+      name: "Durban Testing Center",
+      address: "789 Beach Road, Durban",
+    },
+    {
+      name: "Port Elizabeth Testing Center",
+      address: "Broadwalk Road, Gqeberha",
+    },
   ];
 
   const timeSlots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   const handlePaymentChange = (e) => {
@@ -93,7 +106,10 @@ const Booking = () => {
     const name = e.target.name;
 
     if (name === "cardNumber") {
-      value = value.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim();
+      value = value
+        .replace(/\s/g, "")
+        .replace(/(.{4})/g, "$1 ")
+        .trim();
       if (value.length > 19) value = value.substring(0, 19);
     }
 
@@ -107,11 +123,16 @@ const Booking = () => {
       if (value.length > 4) value = value.substring(0, 4);
     }
 
-    setPaymentData({ ...paymentData, [name]: value });
+    setPaymentData({
+      ...paymentData,
+      [name]: value,
+    });
   };
 
   const handleVenueChange = (e) => {
-    const selectedVenue = testVenues.find((venue) => venue.name === e.target.value);
+    const selectedVenue = testVenues.find(
+      (venue) => venue.name === e.target.value
+    );
     setFormData({
       ...formData,
       testVenue: selectedVenue.name,
@@ -123,7 +144,12 @@ const Booking = () => {
     e.preventDefault();
     setErrorMessage("");
 
-    if (!formData.testDate || !formData.testTime || !formData.testVenue || !formData.licenseCode) {
+    if (
+      !formData.testDate ||
+      !formData.testTime ||
+      !formData.testVenue ||
+      !formData.licenseCode
+    ) {
       setErrorMessage("Please fill in all required fields");
       return;
     }
@@ -140,7 +166,7 @@ const Booking = () => {
       // Check that userData exists
       if (!userData || !userData.userId) {
         setErrorMessage("User not found. Redirecting to login...");
-        setTimeout(() => navigate('/login'), 2000);
+        setTimeout(() => navigate("/login"), 2000);
         setLoading(false);
         return;
       }
@@ -176,15 +202,18 @@ const Booking = () => {
         testype: currentTest.testType,
         testAmount: currentTest.fee,
         payment: paymentRequestData,
-        applicant: { userId: userData.userId }, // ✅ safe applicant
+        applicant: {
+          userId: userData.userId,
+        }, // ✅ safe applicant
       };
 
       console.log("Sending appointment with payment:", appointmentData);
-
       const bookingRes = await ApiService.createTestAppointment(appointmentData);
 
       if (bookingRes.success) {
-        setBookingId(bookingRes.data.testAppointmentId || bookingRes.data.id);
+        setBookingId(
+          bookingRes.data.testAppointmentId || bookingRes.data.id
+        );
         setPaymentSuccess(true);
       } else {
         const errorDetail =
@@ -282,9 +311,9 @@ const Booking = () => {
         {errorMessage && (
           <div className="alert alert-danger" role="alert">
             <strong>Error:</strong> {errorMessage}
-            <button 
-              type="button" 
-              className="btn-close float-end" 
+            <button
+              type="button"
+              className="btn-close float-end"
               onClick={() => setErrorMessage("")}
               aria-label="Close"
             ></button>
@@ -371,12 +400,12 @@ const Booking = () => {
 
                   {formData.testVenue && (
                     <div className="col-12 mb-3">
-                      <label className="form-label fw-medium">Venue Address</label>
+                      <label className="form-label fw-medium">
+                        Venue Address
+                      </label>
                       <div className="form-control bg-light">
-                        {
-                          testVenues.find((v) => v.name === formData.testVenue)
-                            ?.address
-                        }
+                        {testVenues.find((v) => v.name === formData.testVenue)
+                          ?.address}
                       </div>
                     </div>
                   )}
@@ -534,6 +563,7 @@ const Booking = () => {
                           disabled={loading}
                         />
                       </div>
+
                       <div className="col-md-6">
                         <label htmlFor="cvv" className="form-label">
                           CVV
