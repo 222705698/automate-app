@@ -4,6 +4,8 @@ const API_BASE_URL = "http://localhost:8080/capstone";
 
 class ApiService {
   // Create Test Appointment
+
+  // Create a new test appointment
   static async createTestAppointment(appointmentData) {
     try {
       const response = await axios.post(
@@ -30,6 +32,7 @@ class ApiService {
   }
 
   // Login user
+    // Login user
   static async loginUser(email, password) {
     try {
       const response = await axios.post(`${API_BASE_URL}/applicants/login`, {
@@ -78,7 +81,21 @@ class ApiService {
     }
   }
 
-  // ------------------ ADMINS ------------------
+// ------------------ ADMINS ------------------
+// Login admin - updated to match your backend structure
+static async loginAdmin(email, password) {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/admins/login`, {
+      contact: { email },
+      password,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Admin login error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
   static async getAllData() {
     try {
       const response = await axios.get(`${API_BASE_URL}/admins/all-data`);
@@ -98,6 +115,8 @@ class ApiService {
       throw error;
     }
   }
+
+
 
   static async createAdmin(adminData) {
     try {
@@ -200,6 +219,7 @@ class ApiService {
       throw error;
     }
   }
+<<<<<<< HEAD
   static async getUserBookings(userId) {
   try {
     const response = await axios.get(`${API_BASE_URL}/test-appointments/by-applicant/${userId}`);
@@ -210,6 +230,31 @@ class ApiService {
   }
 }
   
+=======
+  // Fetch all vehicle discs
+static async getAllVehicleDiscs() {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/vehicledisc/getAll`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching vehicle discs:", error.response || error.message);
+    throw error;
+  }
+}
+// src/services/ApiService.js
+
+// Fetch expired vehicles from backend
+static async getExpiredVehicles() {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/vehicle/expired`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching expired vehicles:", error.response || error.message);
+    throw error;
+  }
+}
+
+>>>>>>> 5caf43bc6a79fcd80608c53cda3a50f346e8688c
 }
 
 

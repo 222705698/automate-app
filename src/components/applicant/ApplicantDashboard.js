@@ -9,7 +9,7 @@ export default function ApplicantDashboard({ userData, vehicles }) {
   const [hasLicense, setHasLicense] = useState(null);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [licenseType, setLicenseType] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");  
+  const [licenseNumber, setLicenseNumber] = useState("");
   const [userLicenseInfo, setUserLicenseInfo] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [myVehicles, setMyVehicles] = useState(vehicles || []);
@@ -17,11 +17,8 @@ export default function ApplicantDashboard({ userData, vehicles }) {
   const [userBookings, setUserBookings] = useState([]); // State for user-specific bookings
   const [loadingBookings, setLoadingBookings] = useState(true);
 
-  // Add redirect effect if no user data
   useEffect(() => {
-    if (!userData || !userData.userId) {
-      navigate('/login');
-    }
+    if (!userData || !userData.userId) navigate("/login");
   }, [userData, navigate]);
 
   // Fetch user-specific bookings
@@ -66,41 +63,40 @@ export default function ApplicantDashboard({ userData, vehicles }) {
     {
       title: "Book Learners Test",
       description: "Schedule your learners license test",
-      icon: "📝",
+      image: learners,
       action: () => navigate("/booking?type=learners", { state: { userData } }),
       requires: null,
     },
-    {
+    {   
       title: "Book Drivers Test",
       description: "Schedule your drivers license test",
-      icon: "🚗",
+      image: learnersTestImg,
       action: () => navigate("/booking?type=drivers", { state: { userData } }),
       requires: "learners",
     },
     {
       title: "Register Vehicle",
       description: "Register your vehicle and get disc",
-      icon: "📋",
+      image: driversTestImg,
       action: () => navigate("/VehicleRegistration"),
       requires: null,
     },
     {
       title: "Renew Vehicle Disc",
       description: "Renew your vehicle disc",
-      icon: "🔄",
+      image: disc,
       action: () => navigate("/renew-disc"),
       requires: null,
     },
     {
       title: "Pay Traffic Ticket",
       description: "Pay outstanding traffic fines",
-      icon: "💰",
+      image: payTicketImg,
       action: () => navigate("/pay-ticket"),
       requires: null,
     },
   ];
 
-  // Check if user can access a service
   const canAccessService = (service) => {
     if (!service.requires) return true;
     return userLicenseInfo && userLicenseInfo.type === service.requires;
@@ -120,193 +116,229 @@ export default function ApplicantDashboard({ userData, vehicles }) {
 
   return (
     <SharedLayout>
-      <div
-        className="container mt-4"
-        style={{
-          backgroundColor: "#f8f9fa",
-          minHeight: "100vh",
-          padding: "20px",
-        }}
-      >
-        {/* Header with strong blue background */}
-        <div
-          className="p-4 mb-4 rounded text-white"
-          style={{ backgroundColor: "#0066CC" }}
+      <div className="container-fluid px-0">
+        {/* Hero Section */}
+        <section
+          style={{
+            width: "100%",
+            minHeight: "450px",
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${driversTestImg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "white",
+            textAlign: "center",
+            padding: "2rem 1rem",
+          }}
         >
-          <h2 className="mb-2">Welcome, {userData.firstName}</h2>
-          <p className="mb-0">
-            Manage your driving licenses, vehicle registration, and traffic
-            services
-          </p>
-        </div>
+          <div className="px-3" style={{ maxWidth: "800px" }}>
+            <h1 className="display-4 fw-bold mb-3">
+              Effortless Vehicle Disc Registration
+            </h1>
+            <p className="lead mt-3 fs-4">
+              Your one-stop solution for licensing, fines management, and test
+              bookings
+            </p>
+            <button
+              className="btn btn-primary btn-lg mt-4 px-4 py-2"
+              onClick={() =>
+                document
+                  .getElementById("services-section")
+                  .scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              Explore Services
+            </button>
+          </div>
+        </section>
 
-        {/* Space between welcome and question */}
-        <div className="mb-4"></div>
+        {/* About Section */}
+        <section className="py-5 bg-light">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-lg-8 text-center">
+                <h2 className="fw-bold mb-4">About Our Service</h2>
+                <p className="lead text-muted">
+                  At our core, we strive to simplify your vehicle-related
+                  bureaucratic tasks. Our platform enables you to seamlessly
+                  register for vehicle discs, pay off tickets swiftly, and
+                  easily book appointments for learners and drivers tests.
+                </p>
+                <p className="text-muted">
+                  We aim to save you time and provide peace of mind, ensuring
+                  smooth processes for all your vehicular needs.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        {/* License selection prompt */}
-        {!userLicenseInfo && (
-          <div className="card shadow-sm border-0 mb-5">
-            <div className="card-body p-4">
-              <h4 className="card-title mb-3 text-dark">
-                Do you have a driver's license or learner's permit?
-              </h4>
-              <div className="d-flex gap-3 flex-wrap">
+        {/* Full-width CTA Section */}
+        <section
+          className="py-5 rounded-0"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${registerVehicleImg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          <div className="container py-5">
+            <div className="row justify-content-center">
+              <div className="col-lg-8 text-center text-white">
+                <h2 className="display-5 fw-bold mb-4">
+                  Ready to Get Started?
+                </h2>
+                <p className="lead mb-4">
+                  Join thousands of satisfied customers who have simplified
+                  their vehicle documentation process with our services.
+                </p>
                 <button
-                  className="btn btn-lg btn-outline-primary"
-                  onClick={() => handleLicenseSelection("license")}
-                  style={{ minWidth: "180px" }}
+                  className="btn btn-primary btn-lg px-4 py-2"
+                  onClick={() =>
+                    document
+                      .getElementById("services-section")
+                      .scrollIntoView({ behavior: "smooth" })
+                  }
                 >
-                  Driver's License
-                </button>
-                <button
-                  className="btn btn-lg btn-outline-primary"
-                  onClick={() => handleLicenseSelection("learners")}
-                  style={{ minWidth: "180px" }}
-                >
-                  Learner's Permit
+                  Explore Our Services
                 </button>
               </div>
             </div>
           </div>
-        )}
+        </section>
 
-        {/* Display current license info if available */}
-        {userLicenseInfo && (
-          <div className="card shadow-sm border-0 mb-5 bg-light">
-            <div className="card-body p-3">
-              <h5 className="card-title text-dark mb-1">
-                {userLicenseInfo.type === "license"
-                  ? "Driver's License"
-                  : "Learner's Permit"}{" "}
-                Information
-              </h5>
-              <p className="mb-0">Number: {userLicenseInfo.number}</p>
-              <button
-                className="btn btn-sm btn-outline-secondary mt-2"
-                onClick={() => setUserLicenseInfo(null)}
-              >
-                Change License Info
-              </button>
-            </div>
-          </div>
-        )}
+        {/* User Info Section */}
+        <section className="py-5 bg-light">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-lg-10">
+                <div className="text-center mb-5">
+                  <h2 className="fw-bold">Your Driving Information</h2>
+                  <p className="text-muted">
+                    Please let us know which license(s) you currently hold. This
+                    helps us provide you with the right services.
+                  </p>
+                </div>
 
-        {/* Services Grid */}
-        <div className="row g-4 mb-5">
-          {services.map((service, index) => {
-            const disabled = service.requires && !canAccessService(service);
-
-            return (
-              <div key={index} className="col-md-4">
-                <div
-                  className={`card h-100 border-0 p-4 ${
-                    disabled ? "bg-light" : ""
-                  }`}
-                  style={{
-                    cursor: disabled ? "not-allowed" : "pointer",
-                    opacity: disabled ? 0.6 : 1,
-                    backgroundColor: "white",
-                    boxShadow:
-                      hoveredCard === index
-                        ? "0 10px 20px rgba(0, 0, 0, 0.15)"
-                        : "0 4px 8px rgba(0, 0, 0, 0.1)",
-                    transition: "box-shadow 0.3s ease, transform 0.3s ease",
-                    transform:
-                      hoveredCard === index ? "translateY(-5px)" : "none",
-                  }}
-                  onClick={disabled ? null : service.action}
-                  onMouseEnter={() => !disabled && setHoveredCard(index)}
-                  onMouseLeave={() => setHoveredCard(null)}
-                >
-                  <div className="card-body text-center p-3">
-                    <div className="mb-3" style={{ fontSize: "2.5rem" }}>
-                      {service.icon}
-                    </div>
-                    <h4
-                      className="card-title mb-3"
-                      style={{ color: "#0066CC" }}
-                    >
-                      {service.title}
-                    </h4>
-                    <p className="card-text text-muted">
-                      {service.description}
-                    </p>
-                    {disabled && (
-                      <div className="mt-3">
-                        <span className="badge bg-warning text-dark">
-                          Requires Learner's Permit
-                        </span>
+                {/* License Info */}
+                {userLicenseInfo ? (
+                  <div className="card shadow-sm border-0 p-4 mb-4 rounded-4">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <h5 className="fw-bold mb-1">
+                          {userLicenseInfo.type === "license"
+                            ? "Driver's License"
+                            : "Learner's Permit"}
+                        </h5>
+                        <p className="mb-1 fw-medium">
+                          License Number: {userLicenseInfo.number}
+                        </p>
+                        <p className="text-muted mb-0">
+                          Valid Until: 2028-05-15
+                        </p>
                       </div>
+                      <div
+                        style={{
+                          width: "120px",
+                          height: "70px",
+                          backgroundColor: "#eaeaea",
+                          borderRadius: "6px",
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="card shadow-sm border-0 p-4 mb-4 rounded-4">
+                    <div className="d-flex flex-column flex-md-row align-items-center justify-content-around">
+                      <h5 className="me-3 text-center text-md-start mb-3 mb-md-0">
+                        Do you have a driver's license or learner's permit?
+                      </h5>
+                      <div>
+                        <button
+                          className="btn btn-outline-primary me-2 mb-2 mb-md-0"
+                          onClick={() => handleLicenseSelection("license")}
+                        >
+                          Driver's License
+                        </button>
+                        <button
+                          className="btn btn-outline-primary"
+                          onClick={() => handleLicenseSelection("learners")}
+                        >
+                          Learner's Permit
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Bookings and My Vehicles Sections */}
+            <div className="row g-4">
+              {/* Recent Bookings */}
+              <div className="col-md-6">
+                <div
+                  className="card shadow-sm border-0 h-100"
+                  style={{ backgroundColor: "white" }}
+                >
+                  <div
+                    className="card-header text-white py-3"
+                    style={{ backgroundColor: "#0066CC" }}
+                  >
+                    <h4 className="mb-0">Recent Bookings</h4>
+                  </div>
+                  <div className="card-body p-4">
+                    {loadingBookings ? (
+                      <div className="text-center">
+                        <div className="spinner-border text-primary" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <p className="mt-2">Loading bookings...</p>
+                      </div>
+                    ) : userBookings && userBookings.length > 0 ? (
+                      <ul className="list-group list-group-flush">
+                        {userBookings.map((booking, index) => (
+                          <li key={index} className="list-group-item py-3">
+                            <div className="d-flex justify-content-between align-items-center">
+                              <span className="fw-medium fs-6">
+                                {booking.testType === "LEARNERSLICENSETEST" 
+                                  ? "Learner's Test" 
+                                  : "Driver's Test"}
+                              </span>
+                              <div className="text-end">
+                                <div className="text-muted small">
+                                  {formatDate(booking.testDate)}
+                                </div>
+                                <div className="text-muted small">
+                                  {formatTime(booking.testTime)}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mt-2 small text-muted">
+                              Venue: {booking.testVenue}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-muted text-center my-4 fs-5">
+                        No bookings yet
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Recent Bookings and My Vehicles Sections */}
-        <div className="row g-4">
-          {/* Recent Bookings */}
-          <div className="col-md-6">
-            <div
-              className="card shadow-sm border-0 h-100"
-              style={{ backgroundColor: "white" }}
-            >
-              <div
-                className="card-header text-white py-3"
-                style={{ backgroundColor: "#0066CC" }}
-              >
-                <h4 className="mb-0">Recent Bookings</h4>
-              </div>
-              <div className="card-body p-4">
-                {loadingBookings ? (
-                  <div className="text-center">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                    <p className="mt-2">Loading bookings...</p>
-                  </div>
-                ) : userBookings && userBookings.length > 0 ? (
-                  <ul className="list-group list-group-flush">
-                    {userBookings.map((booking, index) => (
-                      <li key={index} className="list-group-item py-3">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <span className="fw-medium fs-6">
-                            {booking.testType === "LEARNERSLICENSETEST" 
-                              ? "Learner's Test" 
-                              : "Driver's Test"}
-                          </span>
-                          <div className="text-end">
-                            <div className="text-muted small">
-                              {formatDate(booking.testDate)}
-                            </div>
-                            <div className="text-muted small">
-                              {formatTime(booking.testTime)}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="mt-2 small text-muted">
-                          Venue: {booking.testVenue}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-muted text-center my-4 fs-5">
-                    No bookings yet
-                  </p>
-                )}
-              </div>
             </div>
           </div>
+        </section>
 
-          {/* My Vehicles */}
-          <div className="col-md-6">
-            <div
-              className="card shadow-sm border-0 h-100"
-              style={{ backgroundColor: "white" }}
-            >
+        {/* Services Section */}
+        <section id="services-section" className="py-5">
+          <div className="container">
+            <div className="text-center mb-5">
+              <h2 className="fw-bold">SERVICES</h2>
               <div
                 className="card-header text-white py-3"
                 style={{ backgroundColor: "#0066CC" }}
@@ -333,17 +365,47 @@ export default function ApplicantDashboard({ userData, vehicles }) {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* License Information Modal */}
+        {/* Testimonials Section */}
+        <section className="py-5" style={{ backgroundColor: "#f8f9fa" }}>
+          <div className="container">
+            <div className="text-center mb-5">
+              <h2 className="fw-bold">TESTIMONIALS</h2>
+              <div
+                className="mx-auto"
+                style={{
+                  height: "3px",
+                  width: "80px",
+                  backgroundColor: "#0d6efd",
+                }}
+              ></div>
+            </div>
+
+            <div className="row g-4">
+              {testimonials.map((testimonial) => (
+                <div key={testimonial.id} className="col-md-4">
+                  <div className="card h-100 border-0 shadow-sm rounded-4 p-4">
+                    <div className="text-warning mb-3 fs-5">
+                      {renderStars(testimonial.rating)}
+                    </div>
+                    <p className="fst-italic mb-4">"{testimonial.text}"</p>
+                    <p className="fw-bold text-primary mb-0">
+                      {testimonial.author}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* License Modal */}
         {showLicenseModal && (
           <div className="modal show d-block" tabIndex="-1">
             <div className="modal-dialog">
               <div className="modal-content">
-                <div
-                  className="modal-header"
-                  style={{ backgroundColor: "#0066CC", color: "white" }}
-                >
+                <div className="modal-header bg-primary text-white">
                   <h5 className="modal-title">
                     Enter Your{" "}
                     {licenseType === "license"
@@ -358,37 +420,22 @@ export default function ApplicantDashboard({ userData, vehicles }) {
                   ></button>
                 </div>
                 <div className="modal-body">
-                  <div className="mb-3">
-                    <label htmlFor="licenseNumber" className="form-label">
-                      {licenseType === "license"
-                        ? "Driver's License"
-                        : "Learner's Permit"}{" "}
-                      Number
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="licenseNumber"
-                      value={licenseNumber}
-                      onChange={(e) => setLicenseNumber(e.target.value)}
-                      placeholder={`Enter your ${
-                        licenseType === "license"
-                          ? "driver's license"
-                          : "learner's permit"
-                      } number`}
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={licenseNumber}
+                    onChange={(e) => setLicenseNumber(e.target.value)}
+                    placeholder={`Enter your ${licenseType}`}
+                  />
                 </div>
                 <div className="modal-footer">
                   <button
-                    type="button"
                     className="btn btn-secondary"
                     onClick={() => setShowLicenseModal(false)}
                   >
                     Cancel
                   </button>
                   <button
-                    type="button"
                     className="btn btn-primary"
                     onClick={saveLicenseInfo}
                     disabled={!licenseNumber.trim()}
@@ -400,8 +447,6 @@ export default function ApplicantDashboard({ userData, vehicles }) {
             </div>
           </div>
         )}
-
-        {/* Modal Backdrop */}
         {showLicenseModal && <div className="modal-backdrop show"></div>}
       </div>
     </SharedLayout>
