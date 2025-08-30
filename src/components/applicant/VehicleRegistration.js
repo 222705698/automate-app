@@ -31,9 +31,23 @@ function VehicleRegistration({ user, onClose, onComplete }) {
 
   const registrationFee = 850;
   const issueDate = new Date();
-  const expiryDate = new Date(
-    new Date().setFullYear(new Date().getFullYear() + 5)
-  );
+  const vehicleYear = parseInt(formData.vehicleYear, 10);
+  let expiryDate;
+
+  if (!isNaN(vehicleYear)) {
+    if (vehicleYear <= 2023) {
+      expiryDate = new Date(issueDate.getTime() + 2 * 60 * 1000); // 2 minutes
+    } else if (vehicleYear >= 2024 && vehicleYear <= 2026) {
+      expiryDate = new Date(issueDate);
+      expiryDate.setFullYear(issueDate.getFullYear() + 1); // 1 year
+    } else {
+      expiryDate = new Date(issueDate);
+      expiryDate.setFullYear(issueDate.getFullYear() + 1); // fallback 1 year
+    }
+  } else {
+    expiryDate = new Date(issueDate); // default if no year chosen yet
+  }
+
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 30 }, (_, i) => currentYear - i);
 
@@ -73,9 +87,9 @@ function VehicleRegistration({ user, onClose, onComplete }) {
 
     // Step 2 validation
     if (
-     // !formData.paymentType ||
+      // !formData.paymentType ||
       !formData.paymentMethod ||
-     // !formData.paymentAmount ||
+      // !formData.paymentAmount ||
       !formData.paymentDate
     ) {
       setError("Please fill in all required payment fields");
@@ -93,12 +107,61 @@ function VehicleRegistration({ user, onClose, onComplete }) {
         setError("Please fill in all card details");
         return;
       }
+
+      // 🔹 CVV validation (3 digits only)
+      if (!/^\d{3}$/.test(formData.cvv)) {
+        setError("CVV must be exactly 3 digits");
+        return;
+      }
+
+      // 🔹 Expiry date validation (MM/YY & not past)
+      const [month, year] = formData.expiryDate
+        .split("/")
+        .map((v) => parseInt(v, 10));
+      if (!month || !year || month < 1 || month > 12) {
+        setError("Expiry date must be in MM/YY format");
+        return;
+      }
+
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1; // JS months are 0-based
+      const currentYear = currentDate.getFullYear() % 100; // Get last 2 digits of year
+
+      if (
+        year < currentYear ||
+        (year === currentYear && month < currentMonth)
+      ) {
+        setError("Card expiry date cannot be in the past");
+        return;
+      }
+      // Card number must be 16 digits
+      if (!/^\d{16}$/.test(formData.cardNumber)) {
+        setError("Card number must be exactly 16 digits");
+        return;
+      }
     }
 
     setError(""); // clear previous errors
     if (!user || (!user.userId && !user.id)) {
       setError("User not logged in. Please log in first.");
       return;
+    }
+
+    const vehicleYear = parseInt(formData.vehicleYear, 10);
+    const issueDate = new Date();
+    let expiryDate;
+
+    if (vehicleYear <= 2023) {
+      // Expire in 2 minutes (demo)
+      expiryDate = new Date(issueDate.getTime() + 2 * 60 * 1000);
+    } else if (vehicleYear >= 2024 && vehicleYear <= 2026) {
+      // Expire in 1 year
+      expiryDate = new Date(issueDate);
+      expiryDate.setFullYear(issueDate.getFullYear() + 1);
+    } else {
+      // fallback: same as 1 year just in case
+      expiryDate = new Date(issueDate);
+      expiryDate.setFullYear(issueDate.getFullYear() + 1);
     }
 
     try {
@@ -114,10 +177,8 @@ function VehicleRegistration({ user, onClose, onComplete }) {
         applicant: { userId: user.userId }, // ✅ Logged-in user
 
         vehicleDisc: {
-          issueDate: new Date().toISOString(),
-          expiryDate: new Date(
-            new Date().setFullYear(new Date().getFullYear() + 5)
-          ).toISOString(),
+          issueDate: issueDate.toISOString(),
+          expiryDate: expiryDate.toISOString(),
           registrationFee: 850,
           status: "active",
         },
@@ -127,6 +188,15 @@ function VehicleRegistration({ user, onClose, onComplete }) {
           paymentAmount: Number(registrationFee),
           paymentDate: formData.paymentDate,
           paymentDetails: formData.paymentDetails,
+          cardholderName: formData.cardholderName,
+          cardNumber: formData.cardNumber,
+          cvv: formData.cvv,
+          expiryDate: formData.expiryDate
+            ? new Date(
+                "20" + formData.expiryDate.split("/")[1],
+                formData.expiryDate.split("/")[0] - 1
+              ).toISOString()
+            : null,
         },
       };
       /* await ApiService.registerVehicle(vehiclePayload);*/
@@ -340,9 +410,14 @@ function VehicleRegistration({ user, onClose, onComplete }) {
                           type="text"
                           name="licensePlate"
                           value={formData.licensePlate}
-                          onChange={handleChange}
-                          placeholder="Optional"
+                          onChange={(e) => {
+                            let value = e.target.value.toUpperCase(); // optional: force uppercase
+                            if (value.length > 7) value = value.slice(0, 7); // limit to 7 chars
+                            setFormData({ ...formData, licensePlate: value });
+                          }}
+                          placeholder="e.g., CA12345"
                           style={inputStyle}
+                          maxLength={7} // enforce in HTML as well
                         />
                       </div>
                     </div>
@@ -380,9 +455,7 @@ function VehicleRegistration({ user, onClose, onComplete }) {
                         readOnly // prevents changing
                         style={inputStyle}
                       >
-                        <option value="Disc">
-                          VEHICLE REGISTRATION
-                        </option>
+                        <option value="Disc">VEHICLE REGISTRATION</option>
                       </select>
                     </div>
 
@@ -419,6 +492,7 @@ function VehicleRegistration({ user, onClose, onComplete }) {
                         value={formData.paymentDate}
                         onChange={handleChange}
                         style={inputStyle}
+                        min={new Date().toISOString().split("T")[0]} // 🚀 Prevents past dates
                       />
                     </div>
 
@@ -453,8 +527,13 @@ function VehicleRegistration({ user, onClose, onComplete }) {
                             type="text"
                             name="cardNumber"
                             value={formData.cardNumber}
-                            onChange={handleChange}
-                            placeholder="1234 5678 9012 3456"
+                            // onChange={handleChange}
+                            onChange={(e) => {
+                              let value = e.target.value.replace(/\D/g, ""); // digits only
+                              if (value.length > 16) value = value.slice(0, 16); // max 16
+                              setFormData({ ...formData, cardNumber: value });
+                            }}
+                            placeholder="1234567812345678"
                             style={inputStyle}
                           />
                         </div>
@@ -465,9 +544,18 @@ function VehicleRegistration({ user, onClose, onComplete }) {
                               type="text"
                               name="expiryDate"
                               value={formData.expiryDate}
-                              onChange={handleChange}
+                              onChange={(e) => {
+                                let value = e.target.value.replace(/\D/g, ""); // only digits
+                                if (value.length > 4) value = value.slice(0, 4); // MMYY only
+                                if (value.length >= 3) {
+                                  value =
+                                    value.slice(0, 2) + "/" + value.slice(2); // insert slash
+                                }
+                                setFormData({ ...formData, expiryDate: value });
+                              }}
                               placeholder="MM/YY"
                               style={inputStyle}
+                              maxLength={5} // enforce MM/YY
                             />
                           </div>
                           <div>
@@ -476,9 +564,14 @@ function VehicleRegistration({ user, onClose, onComplete }) {
                               type="text"
                               name="cvv"
                               value={formData.cvv}
-                              onChange={handleChange}
+                              onChange={(e) => {
+                                let value = e.target.value.replace(/\D/g, ""); // digits only
+                                if (value.length > 3) value = value.slice(0, 3); // max 3
+                                setFormData({ ...formData, cvv: value });
+                              }}
                               placeholder="123"
                               style={inputStyle}
+                              maxLength={3}
                             />
                           </div>
                         </div>
@@ -583,7 +676,9 @@ function VehicleRegistration({ user, onClose, onComplete }) {
                 </button>
                 <button
                   onClick={() =>
-                    navigate("/vehicle-disc", { state: { vehicle: formData , user: user  } })
+                    navigate("/vehicle-disc", {
+                      state: { vehicle: formData, user: user },
+                    })
                   }
                   style={{
                     padding: "12px 20px",

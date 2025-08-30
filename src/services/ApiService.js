@@ -18,6 +18,33 @@ class ApiService {
   }
 
   // Create Test Appointment
+  // --- Fetch all data for admin dashboard ---
+  static async getAllData() {
+    // try {
+      const [
+        admins,
+        applicants,
+        bookings,
+        payments,
+        testAppointments,
+        vehicleDiscs,
+        tickets,
+        registrations,
+      ] = await Promise.all([
+        axios.get(`${API_BASE_URL}/admins`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/applicants`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/bookings`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/payments`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/test-appointments`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/vehicle-discs`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/tickets`).then((res) => res.data),
+        axios.get(`${API_BASE_URL}/registrations`).then((res) => res.data),
+      ]);
+
+      return { admins, applicants, bookings, payments, testAppointments, vehicleDiscs, tickets, registrations };
+//  static API_BASE_URL = "http://localhost:8080/api/test-appointments";
+     }
+  // Create a new test appointment
   static async createTestAppointment(appointmentData) {
     try {
       const response = await axios.post(
@@ -44,6 +71,7 @@ class ApiService {
   }
 
   // Login user
+    // Login user
   static async loginUser(email, password) {
     try {
       const response = await axios.post(`${API_BASE_URL}/applicants/login`, {
@@ -214,6 +242,29 @@ class ApiService {
       throw error;
     }
   }
+  // Fetch all vehicle discs
+static async getAllVehicleDiscs() {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/vehicledisc/getAll`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching vehicle discs:", error.response || error.message);
+    throw error;
+  }
+}
+// src/services/ApiService.js
+
+// Fetch expired vehicles from backend
+static async getExpiredVehicles() {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/vehicle/expired`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching expired vehicles:", error.response || error.message);
+    throw error;
+  }
+}
+
 }
 
 export default ApiService;
