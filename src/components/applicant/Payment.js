@@ -20,7 +20,7 @@ function Payment({ amount, onPay }) {
         className="w-full border p-2 rounded-md mb-4"
       >
         <option value="card">Card</option>
-        <option value="eft">EFT</option>
+        {/* <option value="eft">EFT</option> */}
         <option value="cash">Cash</option>
       </select>
       <button
