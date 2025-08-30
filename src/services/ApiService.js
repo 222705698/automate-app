@@ -115,6 +115,29 @@ static async registerUser(userData) {
       throw error;
     }
   }
+  // Fetch all vehicle discs
+static async getAllVehicleDiscs() {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/vehicledisc/getAll`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching vehicle discs:", error.response || error.message);
+    throw error;
+  }
+}
+// src/services/ApiService.js
+
+// Fetch expired vehicles from backend
+static async getExpiredVehicles() {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/vehicle/expired`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching expired vehicles:", error.response || error.message);
+    throw error;
+  }
+}
+
 }
 
 export default ApiService;

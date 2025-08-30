@@ -15,6 +15,7 @@ import VehicleDisc from "./components/applicant/VehicleDisc";
 import PayTrafficTicket from "./components/applicant/PayTrafficTicket";
 import Booking from "./components/applicant/Booking";
 import BookingDetails from "./components/applicant/BookingDetails";
+import RenewDisc from "./components/applicant/RenewDisc";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -95,6 +96,7 @@ export default function App() {
         <Route path="/vehicle-disc" element={<VehicleDisc />} />
         <Route path="/pay-ticket" element={<PayTrafficTicket />} />
         <Route path="/booking-details/:id" element={<BookingDetails />} />
+        <Route path="/renew-disc" element={<RenewDisc />} />
 
         {/* Booking routes */}
         <Route
