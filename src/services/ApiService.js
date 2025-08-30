@@ -3,6 +3,20 @@ import axios from "axios";
 const API_BASE_URL = "http://localhost:8080/capstone";
 
 class ApiService {
+  // Login admin - updated to match your backend structure
+  static async loginAdmin(email, password) {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/admins/login`, {
+        contact: { email },
+        password,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Admin login error:", error.response || error.message);
+      throw error;
+    }
+  }
+
   // Create Test Appointment
   static async createTestAppointment(appointmentData) {
     try {
