@@ -4,32 +4,7 @@ const API_BASE_URL = "http://localhost:8080/capstone";
 
 class ApiService {
   // Create Test Appointment
-  // --- Fetch all data for admin dashboard ---
-  static async getAllData() {
-    // try {
-      const [
-        admins,
-        applicants,
-        bookings,
-        payments,
-        testAppointments,
-        vehicleDiscs,
-        tickets,
-        registrations,
-      ] = await Promise.all([
-        axios.get(`${API_BASE_URL}/admins`).then((res) => res.data),
-        axios.get(`${API_BASE_URL}/applicants`).then((res) => res.data),
-        axios.get(`${API_BASE_URL}/bookings`).then((res) => res.data),
-        axios.get(`${API_BASE_URL}/payments`).then((res) => res.data),
-        axios.get(`${API_BASE_URL}/test-appointments`).then((res) => res.data),
-        axios.get(`${API_BASE_URL}/vehicle-discs`).then((res) => res.data),
-        axios.get(`${API_BASE_URL}/tickets`).then((res) => res.data),
-        axios.get(`${API_BASE_URL}/registrations`).then((res) => res.data),
-      ]);
 
-      return { admins, applicants, bookings, payments, testAppointments, vehicleDiscs, tickets, registrations };
-//  static API_BASE_URL = "http://localhost:8080/api/test-appointments";
-     }
   // Create a new test appointment
   static async createTestAppointment(appointmentData) {
     try {
@@ -106,7 +81,21 @@ class ApiService {
     }
   }
 
-  // ------------------ ADMINS ------------------
+// ------------------ ADMINS ------------------
+// Login admin - updated to match your backend structure
+static async loginAdmin(email, password) {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/admins/login`, {
+      contact: { email },
+      password,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Admin login error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
   static async getAllData() {
     try {
       const response = await axios.get(`${API_BASE_URL}/admins/all-data`);
@@ -126,6 +115,8 @@ class ApiService {
       throw error;
     }
   }
+
+
 
   static async createAdmin(adminData) {
     try {

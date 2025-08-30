@@ -12,6 +12,7 @@ import Booking from "./components/applicant/Booking";
 import BookingDetails from "./components/applicant/BookingDetails";
 import RenewDisc from "./components/applicant/RenewDisc";
 import Profile from "./components/applicant/Profile";
+import SharedLayout from "./components/sharedPages/SharedLayout";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -47,21 +48,24 @@ export default function App() {
   };
 
   return (
-    <Router>
+    <Router >
       <Routes>
         <Route path="/" element={<LoginScreen onLogin={handleLogin} />} />
         <Route path="/register" element={<RegistrationStep1 onNext={handleRegisterNext} />} />
 
-        <Route
-          path="/applicant"
-          element={
-            user && user.isApplicant ? (
-              <ApplicantDashboard userData={user} bookings={bookings} vehicles={vehicles} />
-            ) : (
-              <LoginScreen onLogin={handleLogin} />
-            )
-          }
-        />
+    <Route
+  path="/applicant"
+  element={
+    user && user.isApplicant ? (
+      <SharedLayout user={user}>
+        <ApplicantDashboard userData={user} bookings={bookings} vehicles={vehicles} />
+      </SharedLayout>
+    ) : (
+      <LoginScreen onLogin={handleLogin} />
+    )
+  }
+/>
+
 
         <Route
           path="/VehicleRegistration"
