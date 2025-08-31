@@ -40,7 +40,16 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       const result = await ApiService.getAllData();
-      setData(result);
+      setData({
+        admins: result?.admins || [],
+        applicants: result?.applicants || [],
+        bookings: result?.bookings || [],
+        payments: result?.payments || [],
+        testAppointments: result?.testAppointments || [],
+        vehicleDiscs: result?.vehicleDiscs || [],
+        tickets: result?.tickets || [],
+        registrations: result?.registrations || [],
+      });
       setLoading(false);
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -51,33 +60,52 @@ export default function AdminDashboard() {
 
   const handleDelete = async (entity, id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
-
     setDeletingId(id);
     try {
       switch (entity) {
         case "applicant":
           await ApiService.deleteApplicant(id);
-          setData(prev => ({ ...prev, applicants: prev.applicants.filter(a => (a.id || a.userId) !== id) }));
+          setData((prev) => ({
+            ...prev,
+            applicants: (prev.applicants || []).filter((a) => (a.id || a.userId) !== id),
+          }));
           break;
         case "booking":
           await ApiService.deleteBooking(id);
-          setData(prev => ({ ...prev, bookings: prev.bookings.filter(b => b.bookingId !== id) }));
+          setData((prev) => ({
+            ...prev,
+            bookings: (prev.bookings || []).filter((b) => b.bookingId !== id),
+          }));
           break;
         case "payment":
           await ApiService.deletePayment(id);
-          setData(prev => ({ ...prev, payments: prev.payments.filter(p => p.paymentId !== id) }));
+          setData((prev) => ({
+            ...prev,
+            payments: (prev.payments || []).filter((p) => p.paymentId !== id),
+          }));
           break;
         case "testAppointment":
           await ApiService.deleteTestAppointment(id);
-          setData(prev => ({ ...prev, testAppointments: prev.testAppointments.filter(t => t.testAppointmentId !== id) }));
+          setData((prev) => ({
+            ...prev,
+            testAppointments: (prev.testAppointments || []).filter(
+              (t) => t.testAppointmentId !== id
+            ),
+          }));
           break;
         case "vehicleDisc":
           await ApiService.deleteVehicleDisc(id);
-          setData(prev => ({ ...prev, vehicleDiscs: prev.vehicleDiscs.filter(v => v.vehicleDiscId !== id) }));
+          setData((prev) => ({
+            ...prev,
+            vehicleDiscs: (prev.vehicleDiscs || []).filter((v) => v.vehicleDiscId !== id),
+          }));
           break;
         case "ticket":
           await ApiService.deleteTicket(id);
-          setData(prev => ({ ...prev, tickets: prev.tickets.filter(t => t.ticketId !== id) }));
+          setData((prev) => ({
+            ...prev,
+            tickets: (prev.tickets || []).filter((t) => t.ticketId !== id),
+          }));
           break;
         default:
           console.warn("Unknown entity for delete:", entity);
@@ -90,19 +118,41 @@ export default function AdminDashboard() {
   };
 
   const stats = [
-    { title: "TOTAL APPLICANTS", value: data.applicants.length, icon: Users, color: "bg-primary" },
-    { title: "TOTAL REVENUE", value: `R ${data.payments.reduce((sum, p) => sum + (p.paymentAmount || 0), 0).toLocaleString()}`, icon: DollarSign, color: "bg-success" },
-    { title: "PENDING BOOKINGS", value: data.bookings.filter((b) => b.status === "PENDING").length, icon: Calendar, color: "bg-warning" },
-    { title: "COMPLETED PAYMENTS", value: data.payments.filter((p) => p.status === "COMPLETED").length, icon: FileText, color: "bg-info" },
-    { title: "TEST APPOINTMENTS", value: data.testAppointments.length, icon: ClipboardList, color: "bg-secondary" },
-    { title: "ACTIVE TICKETS", value: data.tickets.filter((t) => t.status === "ACTIVE").length, icon: Ticket, color: "bg-danger" },
+    { title: "TOTAL APPLICANTS", value: (data.applicants || []).length, icon: Users, color: "bg-primary" },
+    {
+      title: "TOTAL REVENUE",
+      value: `R ${(data.payments || []).reduce((sum, p) => sum + (p.paymentAmount || 0), 0).toLocaleString()}`,
+      icon: DollarSign,
+      color: "bg-success",
+    },
+    {
+      title: "PENDING BOOKINGS",
+      value: (data.bookings || []).filter((b) => b.status === "PENDING").length,
+      icon: Calendar,
+      color: "bg-warning",
+    },
+    {
+      title: "COMPLETED PAYMENTS",
+      value: (data.payments || []).filter((p) => p.status === "COMPLETED").length,
+      icon: FileText,
+      color: "bg-info",
+    },
+    {
+      title: "TEST APPOINTMENTS",
+      value: (data.testAppointments || []).length,
+      icon: ClipboardList,
+      color: "bg-secondary",
+    },
+    {
+      title: "ACTIVE TICKETS",
+      value: (data.tickets || []).filter((t) => t.status === "ACTIVE").length,
+      icon: Ticket,
+      color: "bg-danger",
+    },
   ];
 
-  const filteredApplicants = data.applicants.filter(
-    (a) =>
-      (a.firstName && a.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (a.lastName && a.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (a.email && a.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredApplicants = (data.applicants || []).filter(a =>
+    `${a.firstName} ${a.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const renderDeleteButton = (entity, id) => (
@@ -116,130 +166,206 @@ export default function AdminDashboard() {
   );
 
   const renderApplicantsTable = () => (
-  <div className="table-responsive" style={{ overflowX: "auto" }}>
-    <table className="table table-striped table-bordered text-sm">
-      <thead className="table-dark">
-        <tr>
-          <th>ID</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Email</th>
-          <th>Contact Number</th>
-          <th>Street</th>
-          <th>City</th>
-          <th>Province</th>
-          <th>Postal Code</th>
-          <th>Username</th>
-          <th>Password</th>
-          <th>Status</th>
-          <th>Reason</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {filteredApplicants.length > 0 ? (
-          filteredApplicants.map((a) => (
-            <tr key={a.id || a.userId}>
-              <td>{a.id || a.userId}</td>
-              <td>{a.firstName}</td>
-              <td>{a.lastName}</td>
-              <td>{a.email}</td>
-              <td>{a.contactNumber}</td>
-              <td>{a.street}</td>
-              <td>{a.city}</td>
-              <td>{a.province}</td>
-              <td>{a.postalCode}</td>
-              <td>{a.username}</td>
-              <td>{"*".repeat(a.password?.length || 0)}</td>
-              <td>
-                <select
-                  className="form-select form-select-sm"
-                  value={a.status || "PENDING"}
-                  onChange={async (e) => {
-                    const newStatus = e.target.value;
-                    try {
-                      await ApiService.updateApplicantStatus(a.id || a.userId, { status: newStatus, reason: a.reason });
-                      setData(prev => ({
-                        ...prev,
-                        applicants: prev.applicants.map(app =>
-                          (app.id === a.id || app.userId === a.userId ? { ...app, status: newStatus } : app)
-                        )
-                      }));
-                    } catch (err) {
-                      console.error("Error updating status:", err);
-                      alert("Failed to update status.");
-                    }
-                  }}
-                >
-                  <option value="PENDING">PENDING</option>
-                  <option value="ACCEPTED">ACCEPTED</option>
-                  <option value="REJECTED">REJECTED</option>
-                </select>
-              </td>
-              <td>
-                <input
-                  type="text"
-                  className="form-control form-control-sm"
-                  placeholder="Reason (optional)"
-                  value={a.reason || ""}
-                  onChange={(e) => {
-                    const newReason = e.target.value;
-                    setData(prev => ({
-                      ...prev,
-                      applicants: prev.applicants.map(app =>
-                        (app.id === a.id || app.userId === a.userId ? { ...app, reason: newReason } : app)
-                      )
-                    }));
-                  }}
-                  onBlur={async () => {
-                    try {
-                      await ApiService.updateApplicantStatus(a.id || a.userId, { status: a.status, reason: a.reason });
-                    } catch (err) {
-                      console.error("Error updating reason:", err);
-                    }
-                  }}
-                />
-              </td>
-              <td>
-                <div className="btn-group">
-                  <button className="btn btn-sm btn-outline-primary">
-                    <Eye size={16} />
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={() => handleDelete("applicant", a.id || a.userId)}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </td>
+    <div>
+      <input
+        type="text"
+        className="form-control mb-2"
+        placeholder="Search applicants..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <div className="table-responsive" style={{ overflowX: "auto" }}>
+        <table className="table table-striped table-bordered text-sm">
+          <thead className="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>Contact Number</th>
+              <th>Street</th>
+              <th>City</th>
+              <th>Province</th>
+              <th>Country</th>
+              <th>Postal Code</th>
+              <th>Id NUMBER</th>
+              <th>Password</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>Actions</th>
             </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan="14" className="text-center">No applicants found.</td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
-);
+          </thead>
+          <tbody>
+            {filteredApplicants.length > 0 ? (
+              filteredApplicants.map((a) => (
+                <tr key={a.userId}>
+                  <td>{a.userId}</td>
+                  <td>{a.firstName}</td>
+                  <td>{a.lastName}</td>
+                  <td>{a.contact?.email || "-"}</td>
+                  <td>{a.contact?.cellphone || "-"}</td>
+                  <td>{a.address?.street || "-"}</td>
+                  <td>{a.address?.city || "-"}</td>
+                  <td>{a.address?.province || "-"}</td>
+                  <td>{a.address?.country || "-"}</td>
+                  <td>{a.address?.postalCode || "-"}</td>
+                  <td>{a.idNumber || "-"}</td>
+                  <td>{"*".repeat(a.password?.length || 0)}</td>
+                  <td>
+                    <select
+                      className="form-select form-select-sm"
+                      value={a.status || "PENDING"}
+                      onChange={async (e) => {
+                        const newStatus = e.target.value;
+                        setData((prev) => ({
+                          ...prev,
+                          applicants: (prev.applicants || []).map((app) =>
+                            app.userId === a.userId ? { ...app, status: newStatus } : app
+                          ),
+                        }));
+                        try {
+                          const updatedApplicant = (data.applicants || []).find(
+                            (app) => app.userId === a.userId
+                          );
+                          await ApiService.updateApplicantStatus(a.userId, {
+                            status: newStatus,
+                            reason: updatedApplicant?.reason || "",
+                          });
+                        } catch (err) {
+                          console.error("Error updating status:", err);
+                          alert("Failed to update status.");
+                        }
+                      }}
+                    >
+                      <option value="PENDING">PENDING</option>
+                      <option value="ACCEPTED">ACCEPTED</option>
+                      <option value="REJECTED">REJECTED</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      placeholder="Reason (optional)"
+                      value={a.reason || ""}
+                      onChange={(e) => {
+                        const newReason = e.target.value;
+                        setData((prev) => ({
+                          ...prev,
+                          applicants: (prev.applicants || []).map((app) =>
+                            app.userId === a.userId ? { ...app, reason: newReason } : app
+                          ),
+                        }));
+                      }}
+                      onBlur={async () => {
+                        try {
+                          const updatedApplicant = (data.applicants || []).find(
+                            (app) => app.userId === a.userId
+                          );
+                          await ApiService.updateApplicantStatus(a.userId, {
+                            status: updatedApplicant?.status || "PENDING",
+                            reason: updatedApplicant?.reason || "",
+                          });
+                        } catch (err) {
+                          console.error("Error updating reason:", err);
+                        }
+                      }}
+                    />
+                  </td>
+                  <td>
+                    <div className="btn-group">
+                      <button className="btn btn-sm btn-outline-primary">
+                        <Eye size={16} />
+                      </button>
+                      {renderDeleteButton("applicant", a.userId)}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="15" className="text-center">
+                  No applicants found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
+  const renderTestAppointmentsTable = () => (
+    <div className="table-responsive" style={{ overflowX: "auto" }}>
+      <table className="table table-striped table-bordered text-sm">
+        <thead className="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Address</th>
+            <th>Venue</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Result</th>
+            <th>License Code</th>
+            <th>Test Type</th>
+            <th>Amount</th>
+            <th>Payment ID</th>
+            <th>Applicant ID</th>
+            <th>Applicant Name</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(data.testAppointments || []).length > 0 ? (
+            (data.testAppointments || []).map((t) => (
+              <tr key={t.testAppointmentId}>
+                <td>{t.testAppointmentId}</td>
+                <td>{t.testAddress || "-"}</td>
+                <td>{t.testVenue || "-"}</td>
+                <td>{t.testDate ? new Date(t.testDate).toLocaleDateString() : "-"}</td>
+                <td>{t.testTime || "-"}</td>
+                <td>{t.testResult === null ? "Pending" : t.testResult ? "Pass" : "Fail"}</td>
+                <td>{t.licenseCode || "-"}</td>
+                <td>{t.testType || "-"}</td>
+                <td>R {t.testAmount?.toFixed(2) || "0.00"}</td>
+                <td>{t.payment ? t.payment.paymentId : "N/A"}</td>
+                <td>{t.applicant ? t.applicant.userId : "N/A"}</td>
+                <td>{t.applicant ? `${(t.applicant.firstName || "")} ${(t.applicant.lastName || "")}`.trim() : "N/A"}</td>
+                <td>{renderDeleteButton("testAppointment", t.testAppointmentId)}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="13" className="text-center">No test appointments found.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
   const renderGenericTable = (items, columns, entity, idField) => (
     <div className="table-responsive">
       <table className="table table-striped table-bordered text-sm">
         <thead className="table-dark">
-          <tr>{columns.map(col => <th key={col}>{col}</th>)}</tr>
+          <tr>{columns.map((col) => <th key={col}>{col}</th>)}</tr>
         </thead>
         <tbody>
-          {items.length > 0 ? items.map(item => (
+          {(items || []).length > 0 ? (items || []).map((item) => (
             <tr key={item[idField]}>
-              {columns.map((col, i) => <td key={i}>{item[col.toLowerCase()] || item[col.toLowerCase()]}</td>)}
+              {columns.map((col, i) => {
+                const key = col.charAt(0).toLowerCase() + col.slice(1);
+                let value = item[key];
+                if (key === "paymentMethod" && value?.name) value = value.name;
+                if (key === "paymentType" && value?.name) value = value.name;
+                return <td key={i}>{value || "-"}</td>;
+              })}
               <td>{renderDeleteButton(entity, item[idField])}</td>
             </tr>
           )) : (
-            <tr><td colSpan={columns.length + 1} className="text-center">No {entity}s found.</td></tr>
+            <tr>
+              <td colSpan={columns.length + 1} className="text-center">No {entity}s found.</td>
+            </tr>
           )}
         </tbody>
       </table>
@@ -263,108 +389,15 @@ export default function AdminDashboard() {
 
     switch (selectedTab) {
       case "applicants": return renderApplicantsTable();
-      case "bookings": return (
-        <div className="table-responsive">
-          <table className="table table-hover">
-            <thead className="table-light">
-              <tr>
-                <th>ID</th><th>Type</th><th>Date</th><th>Status</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.bookings.map(b => (
-                <tr key={b.bookingId}>
-                  <td>{b.bookingId}</td>
-                  <td>{b.booktype}</td>
-                  <td>{new Date(b.bookingDate).toLocaleDateString()}</td>
-                  <td><span className={`badge ${b.status === "CONFIRMED" ? "bg-success" : "bg-warning"}`}>{b.status || "PENDING"}</span></td>
-                  <td>{renderDeleteButton("booking", b.bookingId)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-      case "payments": return (
-        <div className="table-responsive">
-          <table className="table table-striped table-bordered text-sm">
-            <thead className="table-dark">
-              <tr><th>ID</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              {data.payments.map(p => (
-                <tr key={p.paymentId}>
-                  <td>{p.paymentId}</td>
-                  <td>R {p.paymentAmount}</td>
-                  <td>{p.paymentMethod}</td>
-                  <td>{p.status}</td>
-                  <td>{new Date(p.paymentDate).toLocaleDateString()}</td>
-                  <td>{renderDeleteButton("payment", p.paymentId)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-      case "testAppointments": return (
-        <div className="table-responsive">
-          <table className="table table-striped table-bordered text-sm">
-            <thead className="table-dark">
-              <tr><th>ID</th><th>Date</th><th>Status</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              {data.testAppointments.map(t => (
-                <tr key={t.testAppointmentId}>
-                  <td>{t.testAppointmentId}</td>
-                  <td>{new Date(t.testDate).toLocaleDateString()}</td>
-                  <td>{t.status}</td>
-                  <td>{renderDeleteButton("testAppointment", t.testAppointmentId)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-      case "vehicleDiscs": return (
-        <div className="table-responsive">
-          <table className="table table-striped table-bordered text-sm">
-            <thead className="table-dark">
-              <tr><th>ID</th><th>Vehicle</th><th>Disc Number</th><th>Expiry Date</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              {data.vehicleDiscs.map(v => (
-                <tr key={v.vehicleDiscId}>
-                  <td>{v.vehicleDiscId}</td>
-                  <td>{v.vehicle?.vehicleNumber}</td>
-                  <td>{v.discNumber}</td>
-                  <td>{new Date(v.expiryDate).toLocaleDateString()}</td>
-                  <td>{renderDeleteButton("vehicleDisc", v.vehicleDiscId)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-      case "tickets": return (
-        <div className="table-responsive">
-          <table className="table table-striped table-bordered text-sm">
-            <thead className="table-dark">
-              <tr><th>ID</th><th>Type</th><th>Status</th><th>Date</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              {data.tickets.map(t => (
-                <tr key={t.ticketId}>
-                  <td>{t.ticketId}</td>
-                  <td>{t.ticketType}</td>
-                  <td>{t.status}</td>
-                  <td>{new Date(t.issueDate).toLocaleDateString()}</td>
-                  <td>{renderDeleteButton("ticket", t.ticketId)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
+      case "bookings":
+        return renderGenericTable(data.bookings || [], ["BookingId", "Booktype", "BookingDate", "Status"], "booking", "bookingId");
+      case "payments":
+        return renderGenericTable(data.payments || [], ["PaymentId", "PaymentAmount", "PaymentMethod", "PaymentType", "Status", "PaymentDate"], "payment", "paymentId");
+      case "testAppointments": return renderTestAppointmentsTable();
+      case "vehicleDiscs":
+        return renderGenericTable(data.vehicleDiscs || [], ["VehicleDiscId", "Vehicle", "DiscNumber", "ExpiryDate"], "vehicleDisc", "vehicleDiscId");
+      case "tickets":
+        return renderGenericTable(data.tickets || [], ["TicketId", "TicketType", "Status", "IssueDate"], "ticket", "ticketId");
       default: return <div>Select a tab to view data</div>;
     }
   };
@@ -412,7 +445,7 @@ export default function AdminDashboard() {
           <div className="card shadow-sm h-100">
             <div className="card-header bg-white">
               <ul className="nav nav-tabs card-header-tabs flex-wrap">
-                {["applicants", "bookings", "payments", "testAppointments", "vehicleDiscs", "tickets"].map(tab => (
+                {["applicants", "bookings", "payments", "testAppointments", "vehicleDiscs", "tickets"].map((tab) => (
                   <li key={tab} className="nav-item">
                     <button className={`nav-link ${selectedTab === tab ? "active" : ""}`} onClick={() => setSelectedTab(tab)}>
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -433,7 +466,7 @@ export default function AdminDashboard() {
             </div>
             <div className="card-body">
               <div className="list-group list-group-flush">
-                {data.applicants.slice(0, 2).map((a, i) => (
+                {(data.applicants || []).map((a, i) => (
                   <div key={i} className="list-group-item border-0 px-0">
                     <div className="border-start border-primary ps-3">
                       <h6 className="fw-bold mb-1">New applicant registered</h6>
@@ -442,12 +475,12 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 ))}
-                {data.payments.slice(0, 2).map((p, i) => (
+                {(data.testAppointments || []).map((t, i) => (
                   <div key={i} className="list-group-item border-0 px-0">
                     <div className="border-start border-success ps-3">
-                      <h6 className="fw-bold mb-1">Payment received</h6>
-                      <p className="text-muted small mb-1">R {p.paymentAmount} via {p.paymentMethod}</p>
-                      <small className="text-muted">{new Date(p.paymentDate).toLocaleDateString()}</small>
+                      <h6 className="fw-bold mb-1">Test appointment created</h6>
+                      <p className="text-muted small mb-1">{t.testType || "Test"}</p>
+                      <small className="text-muted">{new Date(t.testDate).toLocaleDateString()}</small>
                     </div>
                   </div>
                 ))}

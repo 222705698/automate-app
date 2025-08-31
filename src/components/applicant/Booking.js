@@ -276,7 +276,7 @@ const Booking = () => {
                 <div className="d-flex justify-content-center gap-3">
                   <button
                     className="btn btn-primary"
-                    onClick={() => navigate("/applicant")}
+                    onClick={() => navigate("/applicant", { state: { refreshBookings: true } })}
                   >
                     Go to Dashboard
                   </button>
