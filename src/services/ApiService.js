@@ -59,7 +59,7 @@ class ApiService {
     }
   }
 
-  // Login admin - updated to match your backend structure
+  // Login admin
   static async loginAdmin(email, password) {
     try {
       const response = await axios.post(`${API_BASE_URL}/admins/login`, {
@@ -192,9 +192,10 @@ class ApiService {
     }
   }
 
+  // ------------------ DELETE METHODS ------------------
   static async deleteApplicant(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/applicants/delete/${id}`);
+      const response = await axios.delete(`${API_BASE_URL}/admins/applicants/delete/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting applicant:", error.response || error.message);
@@ -203,10 +204,9 @@ class ApiService {
     }
   }
 
-  // ------------------ DELETE METHODS ------------------
   static async deleteBooking(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/bookings/delete/${id}`);
+      const response = await axios.delete(`${API_BASE_URL}/admins/bookings/delete/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting booking:", error.response || error.message);
@@ -217,7 +217,7 @@ class ApiService {
 
   static async deletePayment(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/payment/delete/${id}`);
+      const response = await axios.delete(`${API_BASE_URL}/admins/payments/delete/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting payment:", error.response || error.message);
@@ -228,7 +228,7 @@ class ApiService {
 
   static async deleteTestAppointment(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/test-appointments/delete/${id}`);
+      const response = await axios.delete(`${API_BASE_URL}/admins/test-appointments/delete/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting test appointment:", error.response || error.message);
@@ -239,7 +239,7 @@ class ApiService {
 
   static async deleteVehicleDisc(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/vehicledisc/delete/${id}`);
+      const response = await axios.delete(`${API_BASE_URL}/admins/vehicle-discs/delete/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting vehicle disc:", error.response || error.message);
@@ -250,7 +250,7 @@ class ApiService {
 
   static async deleteTicket(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/tickets/delete/${id}`);
+      const response = await axios.delete(`${API_BASE_URL}/admins/tickets/delete/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting ticket:", error.response || error.message);
@@ -262,11 +262,15 @@ class ApiService {
   // ------------------ APPLICANT STATUS ------------------
   static async updateApplicantStatus(id, { status, reason }) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/applicants/update-status/${id}`, { status, reason }, {
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await axios.put(
+        `${API_BASE_URL}/admins/update-status/${id}`, 
+        { status, reason }, 
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
-      });
+      );
       return response.data;
     } catch (error) {
       console.error("Error updating applicant status:", error.response || error.message);
