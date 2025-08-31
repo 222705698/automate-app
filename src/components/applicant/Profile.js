@@ -10,7 +10,7 @@ const Profile = ({ user }) => {
     lastName: user.lastName || "",
     idNumber: user.idNumber || "",
     email: user.contact?.email || "",
-    cellphone: user.contact?.cellphone || "",
+    cellphone: user.contact?.cellphone || "", //updated
     street: user.address?.street || "",
     city: user.address?.city || "",
     province: user.address?.province || "",

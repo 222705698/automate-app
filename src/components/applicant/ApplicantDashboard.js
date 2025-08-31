@@ -253,7 +253,7 @@ export default function ApplicantDashboard({ userData, bookings: initialBookings
         </div>
       </section>
 
-      {/* User Info & Bookings Section */}
+      {/* User Info & Bookings Section */} //updated
       <section className="py-5 bg-light">
         <div className="container">
           <div className="row justify-content-center">

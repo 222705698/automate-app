@@ -179,7 +179,7 @@ const Booking = () => {
         return `20${year}-${month.padStart(2, "0")}-01`; // YYYY-MM-DD
       };
 
-      const paymentRequestData = {
+      const paymentRequestData = { //update
         paymentType: "Booking",
         paymentMethod: paymentData.paymentMethod,
         paymentAmount: currentTest.fee,
