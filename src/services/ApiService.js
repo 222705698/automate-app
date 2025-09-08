@@ -11,14 +11,17 @@ class ApiService {
         appointmentData,
         {
           headers: {
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       console.log("Appointment created successfully:", response.data);
       return { success: true, data: response.data };
     } catch (error) {
-      console.error("Booking creation error:", error.response?.data || error.message);
+      console.error(
+        "Booking creation error:",
+        error.response?.data || error.message
+      );
       const errorMessage = this.extractErrorMessage(error);
       return { success: false, error: errorMessage };
     }
@@ -27,29 +30,24 @@ class ApiService {
   // Register a new applicant
   static async registerUser(userData) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/applicants/create`, userData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const url =
+        userData.role === "ADMIN"
+          ? `${API_BASE_URL}/admins/create`
+          : `${API_BASE_URL}/applicants/create`;
+      const response = await axios.post(url, userData);
       return response.data;
     } catch (error) {
       console.error("Registration error:", error.response || error.message);
-      const errorMessage = this.extractErrorMessage(error);
-      throw new Error(errorMessage);
+      throw error;
     }
   }
 
-  // Login user
+  // Login applicant
   static async loginUser(email, password) {
     try {
       const response = await axios.post(`${API_BASE_URL}/applicants/login`, {
         contact: { email },
         password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
       });
       return response.data;
     } catch (error) {
@@ -62,14 +60,18 @@ class ApiService {
   // Login admin
   static async loginAdmin(email, password) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/admins/login`, {
-        contact: { email },
-        password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await axios.post(
+        `${API_BASE_URL}/admins/login`,
+        {
+          contact: { email },
+          password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       return response.data;
     } catch (error) {
       console.error("Admin login error:", error.response?.data || error.message);
@@ -84,11 +86,15 @@ class ApiService {
       if (!vehicleData.applicant || !vehicleData.applicant.userId) {
         throw new Error("User not logged in");
       }
-      const response = await axios.post(`${API_BASE_URL}/vehicle/create`, vehicleData, {
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await axios.post(
+        `${API_BASE_URL}/vehicle/create`,
+        vehicleData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       return response.data;
     } catch (error) {
       console.error("Vehicle registration error:", error.response || error.message);
@@ -99,11 +105,15 @@ class ApiService {
 
   static async createVehicleDisc(discData) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/vehicledisc/create`, discData, {
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await axios.post(
+        `${API_BASE_URL}/vehicledisc/create`,
+        discData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       return response.data;
     } catch (error) {
       console.error("Vehicle Disc creation error:", error.response || error.message);
@@ -115,14 +125,18 @@ class ApiService {
   // Payment method
   static async createPayment(paymentData) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/payments/create`, paymentData, {
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await axios.post(
+        `${API_BASE_URL}/payments/create`,
+        paymentData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       return response.data;
     } catch (error) {
-      console.error("Payment creation error:", error.response?.data || error.message);
+      console.error("Payment creation error:", error.response || error.message);
       const errorMessage = this.extractErrorMessage(error);
       throw new Error(errorMessage);
     }
@@ -153,11 +167,15 @@ class ApiService {
 
   static async createAdmin(adminData) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/admins/create`, adminData, {
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await axios.post(
+        `${API_BASE_URL}/admins/create`,
+        adminData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       return response.data;
     } catch (error) {
       console.error("Error creating admin:", error.response || error.message);
@@ -168,11 +186,15 @@ class ApiService {
 
   static async updateAdmin(adminData) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/admins/update`, adminData, {
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await axios.put(
+        `${API_BASE_URL}/admins/update`,
+        adminData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       return response.data;
     } catch (error) {
       console.error("Error updating admin:", error.response || error.message);
@@ -195,7 +217,9 @@ class ApiService {
   // ------------------ DELETE METHODS ------------------
   static async deleteApplicant(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/admins/applicants/delete/${id}`);
+      const response = await axios.delete(
+        `${API_BASE_URL}/admins/applicants/delete/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error deleting applicant:", error.response || error.message);
@@ -206,7 +230,9 @@ class ApiService {
 
   static async deleteBooking(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/admins/bookings/delete/${id}`);
+      const response = await axios.delete(
+        `${API_BASE_URL}/admins/bookings/delete/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error deleting booking:", error.response || error.message);
@@ -217,7 +243,9 @@ class ApiService {
 
   static async deletePayment(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/admins/payments/delete/${id}`);
+      const response = await axios.delete(
+        `${API_BASE_URL}/admins/payments/delete/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error deleting payment:", error.response || error.message);
@@ -228,7 +256,9 @@ class ApiService {
 
   static async deleteTestAppointment(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/admins/test-appointments/delete/${id}`);
+      const response = await axios.delete(
+        `${API_BASE_URL}/admins/test-appointments/delete/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error deleting test appointment:", error.response || error.message);
@@ -239,7 +269,9 @@ class ApiService {
 
   static async deleteVehicleDisc(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/admins/vehicle-discs/delete/${id}`);
+      const response = await axios.delete(
+        `${API_BASE_URL}/admins/vehicle-discs/delete/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error deleting vehicle disc:", error.response || error.message);
@@ -263,12 +295,12 @@ class ApiService {
   static async updateApplicantStatus(id, { status, reason }) {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/admins/update-status/${id}`, 
-        { status, reason }, 
+        `${API_BASE_URL}/admins/update-status/${id}`,
+        { status, reason },
         {
           headers: {
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       return response.data;
@@ -280,15 +312,19 @@ class ApiService {
   }
 
   static async getUserBookings(userId) {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/test-appointments/by-applicant/${userId}`);
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error("Error fetching user bookings:", error.response?.data || error.message);
-    return { success: false, error: error.response?.data || error.message };
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/test-appointments/by-applicant/${userId}`
+      );
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error(
+        "Error fetching user bookings:",
+        error.response?.data || error.message
+      );
+      return { success: false, error: error.response?.data || error.message };
+    }
   }
-}
-  
 
   // Fetch all vehicle discs
   static async getAllVehicleDiscs() {
@@ -313,8 +349,6 @@ class ApiService {
       throw new Error(errorMessage);
     }
   }
-
 }
-
 
 export default ApiService;
